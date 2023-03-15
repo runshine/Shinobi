@@ -90,49 +90,52 @@ module.exports = function(s,config,lang,io){
     var wellKnownDirectory = s.mainDirectory + '/web/.well-known'
     if(fs.existsSync(wellKnownDirectory))app.use('/.well-known',express.static(wellKnownDirectory))
     config.sslEnabled = false
-    if(config.ssl&&config.ssl.key&&config.ssl.cert){
-        config.sslEnabled = true
-        config.ssl.key=fs.readFileSync(s.checkRelativePath(config.ssl.key),'utf8')
-        config.ssl.cert=fs.readFileSync(s.checkRelativePath(config.ssl.cert),'utf8')
-        if(config.ssl.port === undefined){
-            config.ssl.port=443
-        }
-        if(config.ssl.bindip === undefined){
-            config.ssl.bindip=config.bindip
-        }
-        if(config.ssl.ca&&config.ssl.ca instanceof Array){
-            config.ssl.ca.forEach(function(v,n){
-                config.ssl.ca[n]=fs.readFileSync(s.checkRelativePath(v),'utf8')
-            })
-        }
-        var serverHTTPS = https.createServer(config.ssl,app);
-        serverHTTPS.listen(config.ssl.port,config.bindip,function(){
-            console.log('SSL '+lang.Shinobi+' : SSL Web Server Listening on '+config.ssl.port);
-        });
-        if(config.webPaths.home !== '/'){
+    const sslInfo = config.ssl
+    if(sslInfo && sslInfo.key && sslInfo.cert){
+        try{
+            sslInfo.key = fs.readFileSync(s.checkRelativePath(sslInfo.key),'utf8')
+            sslInfo.cert = fs.readFileSync(s.checkRelativePath(sslInfo.cert),'utf8')
+            sslInfo.port = sslInfo.port || 443
+            sslInfo.bindip = sslInfo.bindip || config.bindip
+            if(sslInfo.ca && sslInfo.ca instanceof Array){
+                sslInfo.ca.forEach(function(v,n){
+                    sslInfo.ca[n] = fs.readFileSync(s.checkRelativePath(v),'utf8')
+                })
+            }
+            var serverHTTPS = https.createServer(sslInfo,app);
+            serverHTTPS.listen(sslInfo.port,config.bindip,function(){
+                console.log('SSL '+lang.Shinobi+' : SSL Web Server Listening on '+sslInfo.port);
+            });
+            if(config.webPaths.home !== '/'){
+                io.attach(serverHTTPS,{
+                    path:'/socket.io',
+                    transports: ['websocket']
+                })
+            }
             io.attach(serverHTTPS,{
-                path:'/socket.io',
+                path:s.checkCorrectPathEnding(config.webPaths.home)+'socket.io',
                 transports: ['websocket']
             })
+            io.attach(serverHTTPS,{
+                path:s.checkCorrectPathEnding(config.webPaths.admin)+'socket.io',
+                transports: ['websocket']
+            })
+            io.attach(serverHTTPS,{
+                path:s.checkCorrectPathEnding(config.webPaths.super)+'socket.io',
+                transports: ['websocket']
+            })
+            if(sslInfo.autoRedirect === true){
+                app.use(function(req, res, next) {
+                  if(!req.secure) {
+                      return res.redirect(['https://', req.hostname,":",sslInfo.port, req.url].join(''));
+                  }
+                  next();
+                })
+            }
+            config.sslEnabled = true
+        }catch(err){
+            console.error(err)
         }
-        io.attach(serverHTTPS,{
-            path:s.checkCorrectPathEnding(config.webPaths.home)+'socket.io',
-            transports: ['websocket']
-        })
-        io.attach(serverHTTPS,{
-            path:s.checkCorrectPathEnding(config.webPaths.admin)+'socket.io',
-            transports: ['websocket']
-        })
-        io.attach(serverHTTPS,{
-            path:s.checkCorrectPathEnding(config.webPaths.super)+'socket.io',
-            transports: ['websocket']
-        })
-        app.use(function(req, res, next) {
-          if(!req.secure) {
-              return res.redirect(['https://', req.hostname,":",config.ssl.port, req.url].join(''));
-          }
-          next();
-        })
     }
     //start HTTP
     const onHttpRequestUpgradeExtensions = s.onHttpRequestUpgradeExtensions;

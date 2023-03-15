@@ -84,12 +84,16 @@ $(document).ready(function(){
             setCurrentRemoteLink()
         }
     }
+    function makeHostLink(selectedServer,apiKey){
+        var href = `https://${selectedServer.host}:${selectedServer.webPort == 80 ? 443 : selectedServer.webPort}/s/${apiKey}/`
+        return href
+    }
     function setCurrentRemoteLink(){
         var apiKey = easyRemoteAccessForm.find('[name="p2pApiKey"]').val()
         var selectedServer = p2pServerList[currentlyRegisteredP2PServer]
         console.log(selectedServer,currentlySelectedP2PServerId,p2pServerList)
         if(selectedServer && selectedServer.host){
-            var href = `http://${selectedServer.host}:${selectedServer.webPort}/s/${apiKey}/${window.useBetterP2P ? '' : '?p2p=1'}`
+            var href = makeHostLink(selectedServer,apiKey)
             remoteDashboardLinkButton.attr('href',href)
         }else{
             new PNotify({
@@ -164,7 +168,7 @@ $(document).ready(function(){
             var selectedServer = p2pServerList[currentlyRegisteredP2PServer]
             console.log(selectedServer,currentlySelectedP2PServerId,p2pServerList)
             if(selectedServer && selectedServer.host){
-                var href = `https://${selectedServer.host}:${selectedServer.webPort}/s/${apiKey}/${window.useBetterP2P ? '' : '?p2p=1'}`
+                var href = makeHostLink(selectedServer,apiKey)
                 copyToClipboard(href)
                 new PNotify({
                     type: 'success',

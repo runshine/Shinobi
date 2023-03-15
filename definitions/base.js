@@ -3106,6 +3106,31 @@ module.exports = function(s,config,lang){
                              ]
                          },
                          {
+                            "name": "detail=detector_object_ignore_not_move",
+                            "field": lang["Ignore Non-Moving"],
+                            "default": "0",
+                            "fieldType": "select",
+                            "selector": "h_obj_ignore_move",
+                            "possible": [
+                               {
+                                  "name": lang.No,
+                                  "value": "0"
+                               },
+                               {
+                                  "name": lang.Yes,
+                                  "value": "1"
+                               }
+                            ]
+                         },
+                         {
+                             hidden: true,
+                            "name": "detail=detector_object_move_percent",
+                            "field": lang['Minimum Movement'],
+                            "description": lang.inPercent,
+                            "default": "5",
+                            "form-group-class": "h_obj_ignore_move_input h_obj_ignore_move_1"
+                         },
+                         {
                              isAdvanced: true,
                             "name": "detail=detector_send_frames_object",
                             "field": lang["Send Frames"],

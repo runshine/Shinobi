@@ -322,7 +322,7 @@ $(document).ready(function(e){
         var html = ''
         $.each(event.details.matrices,function(n,matrix){
             html += `<div class="stream-detected-object" name="${event.details.name}" style="height:${heightRatio * matrix.height}px;width:${widthRatio * matrix.width}px;top:${heightRatio * matrix.y}px;left:${widthRatio * matrix.x}px;">`
-            if(matrix.tag)html += `<span class="tag">${matrix.tag}</span>`
+            if(matrix.tag)html += `<span class="tag">${matrix.tag}${!isNaN(matrix.id) ? ` <small class="label label-default">${matrix.id}</small>`: ''}</span>`
             html += '</div>'
         })
         streamObjectsContainer.append(html)

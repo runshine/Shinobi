@@ -100,7 +100,12 @@ module.exports = function(s,config,lang,app){
     const startWorker = () => {
         stopWorker()
         const pathToWorkerScript = __dirname + `/commander/${config.useBetterP2P ? 'workerv2' : 'worker'}.js`
-        const workerProcess = new Worker(pathToWorkerScript)
+        const workerProcess = new Worker(pathToWorkerScript,{
+            workerData: {
+                config: config,
+                lang: lang
+            }
+        })
         workerProcess.on('message',function(data){
             switch(data.f){
                 case'debugLog':
@@ -114,8 +119,6 @@ module.exports = function(s,config,lang,app){
         setTimeout(() => {
             workerProcess.postMessage({
                 f: 'init',
-                config: config,
-                lang: lang
             })
         },2000)
         return workerProcess

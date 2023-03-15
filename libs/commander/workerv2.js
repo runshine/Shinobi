@@ -1,10 +1,11 @@
-const { parentPort } = require('worker_threads');
+const { parentPort, workerData } = require('worker_threads');
 process.on("uncaughtException", function(error) {
   console.error(error);
 });
-let remoteConnectionPort = 8080
-let config = {}
-let lang = {}
+let config = workerData.config
+let lang = workerData.lang
+let sslInfo = config.ssl || {}
+let remoteConnectionPort = config.easyRemotePort || (sslInfo && sslInfo.port && (sslInfo.enabled !== false) ? sslInfo.port : config.port || 8080)
 const net = require("net")
 const bson = require('bson')
 const WebSocket = require('cws')
@@ -25,9 +26,6 @@ const s = {
 parentPort.on('message',(data) => {
     switch(data.f){
         case'init':
-            config = Object.assign({},data.config)
-            lang = Object.assign({},data.lang)
-            remoteConnectionPort = config.ssl && JSON.stringify(config.ssl) !== '{}' ? config.ssl.port || 443 : config.port || 8080
             initialize()
         break;
         case'exit':

@@ -42,7 +42,6 @@ module.exports = function (s, config, lang, getSnapshot) {
                         s.debugLog(result);
                     });
                 })
-                console.log(sendBody)
             } catch (err) {
                 s.debugLog(err)
                 s.userLog(

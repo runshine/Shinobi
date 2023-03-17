@@ -9,4 +9,10 @@ module.exports = async function(s,config){
     await alterColumn('Videos',[
         {name: 'size', length: 15, type: 'bigInteger'},
     ])
+    await alterColumn('Cloud Videos',[
+        {name: 'size', length: 15, type: 'bigInteger'},
+    ])
+    await alterColumn('Files',[
+        {name: 'size', length: 15, type: 'bigInteger'},
+    ])
 }

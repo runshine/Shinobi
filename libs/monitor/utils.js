@@ -16,7 +16,7 @@ module.exports = (s,config,lang) => {
         createWarningsForConfiguration,
         buildMonitorConfigPartialFromWarnings,
         createPipeArray,
-        splitForFFPMEG,
+        splitForFFMPEG,
         sanitizedFfmpegCommand,
     } = require('../ffmpeg/utils.js')(s,config,lang)
     const {
@@ -220,7 +220,7 @@ module.exports = (s,config,lang) => {
                 })
             }
             const temporaryImageFile = streamDir + s.gid(5) + '.jpg'
-            const ffmpegCmd = splitForFFPMEG(`-y -loglevel warning -re ${inputOptions.join(' ')} -i "${url}" ${outputOptions.join(' ')} -f image2 -an -frames:v 1 "${temporaryImageFile}"`)
+            const ffmpegCmd = splitForFFMPEG(`-y -loglevel warning -re ${inputOptions.join(' ')} -i "${url}" ${outputOptions.join(' ')} -f image2 -an -frames:v 1 "${temporaryImageFile}"`)
             const snapProcess = spawn('ffmpeg',ffmpegCmd,{detached: true})
             snapProcess.stderr.on('data',function(data){
                 // s.debugLog(data.toString())
@@ -306,7 +306,7 @@ module.exports = (s,config,lang) => {
             });
             const ffmpegCommandString = ffmpegCommand.join(' ')
             activeMonitor.ffmpegSubstream = sanitizedFfmpegCommand(e,ffmpegCommandString)
-            const ffmpegCommandParsed = splitForFFPMEG(ffmpegCommandString)
+            const ffmpegCommandParsed = splitForFFMPEG(ffmpegCommandString)
             activeMonitor.subStreamChannel = channelNumber;
             s.userLog({
                 ke: groupKey,

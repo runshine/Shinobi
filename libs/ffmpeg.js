@@ -5,7 +5,7 @@ module.exports = async (s,config,lang,onFinish) => {
     const {
         sanitizedFfmpegCommand,
         createPipeArray,
-        splitForFFPMEG,
+        splitForFFMPEG,
         checkForWindows,
         checkForUnix,
         checkStaticBuilds,
@@ -66,7 +66,7 @@ module.exports = async (s,config,lang,onFinish) => {
                         //hold ffmpeg command for log stream
                         activeMonitor.ffmpeg = sanitizedFfmpegCommand(e,ffmpegCommandString)
                         //clean the string of spatial impurities and split for spawn()
-                        const ffmpegCommandParsed = splitForFFPMEG(ffmpegCommandString)
+                        const ffmpegCommandParsed = splitForFFMPEG(ffmpegCommandString)
                         try{
                             fs.rmSync(e.sdir + 'cmd.txt')
                         }catch(err){

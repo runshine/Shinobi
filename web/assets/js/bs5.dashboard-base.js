@@ -986,7 +986,7 @@ function convertJsonToAccordionHtml(theJson){
         keys.forEach((key) => {
             var value = innerJson[key]
             var isObject = typeof value === 'object' || typeof value === 'array'
-            if(value)html += `<li><a class="badge btn btn-sm ${isObject ? `toggle-accordion-list btn-primary` : `btn-default`}"><i class="fa fa-${isObject ? `plus` : `circle`}"></i></a> ${key} ${isObject ? recurseJson(value,true) : `: ${value}`}</li>`
+            if(value === 0 || value === false || value)html += `<li><a class="badge btn btn-sm ${isObject ? `toggle-accordion-list btn-primary` : `btn-default`}"><i class="fa fa-${isObject ? `plus` : `circle`}"></i></a> ${key} ${isObject ? recurseJson(value,true) : `: ${value}`}</li>`
         })
         html += `</ul>`
         return html

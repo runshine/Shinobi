@@ -9,7 +9,7 @@ module.exports = function(s,config,lang,app,io){
         sendTimelapseFrameToMasterNode,
     } = require('./childNode/childUtils.js')(s,config,lang)
     const {
-        splitForFFPMEG,
+        splitForFFMPEG,
     } = require('./ffmpeg/utils.js')(s,config,lang)
     const {
         getFileDirectory,
@@ -239,7 +239,7 @@ module.exports = function(s,config,lang,app,io){
                 const numberOfFrames = framesAccepted.length
                 const commandString = `-y -threads 1 -re -f concat -safe 0 -r ${framesPerSecond} -i "${concatListFile}" -q:v 1 -c:v libx264 -preset ultrafast -r ${framesPerSecond} "${finalMp4OutputLocation}"`
                 s.debugLog("ffmpeg",commandString)
-                const videoBuildProcess = spawn(config.ffmpegDir,splitForFFPMEG(commandString))
+                const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
                 videoBuildProcess.stdout.on('data',function(data){
                     s.debugLog('stdout',finalMp4OutputLocation,data.toString())
                 })

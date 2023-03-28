@@ -135,14 +135,14 @@ module.exports = function(s,config,lang,io){
             }
         },
         "ffmpeg.js" : {
-            splitForFFPMEG : function(next){
+            splitForFFMPEG : function(next){
                 var expectedResult = [
                     'flag1',
                     'flag2',
                     'fl ag3',
                 ]
-                var testResult = s.splitForFFPMEG('flag1  flag2    "fl ag3"')
-                checkResult('Internal Function : splitForFFPMEG',JSON.stringify(expectedResult),JSON.stringify(testResult))
+                var testResult = s.splitForFFMPEG('flag1  flag2    "fl ag3"')
+                checkResult('Internal Function : splitForFFMPEG',JSON.stringify(expectedResult),JSON.stringify(testResult))
                 next()
             },
             "ffmpeg" : function(next){

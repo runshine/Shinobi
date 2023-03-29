@@ -47,6 +47,7 @@ $(document).ready(function(){
                             <div class="pb-2"><b>${lang['Time Created']} :</b> ${module.created}</div>
                             <div class="pb-2"><b>${lang['Last Modified']} :</b> ${module.lastModified}</div>
                             <div class="mb-2">
+                                <a class="btn btn-sm btn-default" plugin-manager-action="readmeToggle">${lang.Notes}</a>
                                 ${module.hasInstaller ? `
                                     <a class="btn btn-sm btn-info" plugin-manager-action="install">${lang['Run Installer']}</a>
                                     <a class="btn btn-sm btn-danger" style="display:none" plugin-manager-action="cancelInstall">${lang['Stop']}</a>
@@ -74,6 +75,7 @@ $(document).ready(function(){
                                     <button type="button" class="btn btn-sm btn-danger btn-block" plugin-manager-action="command" command="N">${lang.No}</button>
                                 </div>
                             </div>
+                            <div class="readme-view d-none"></div>
                         </div>
                     </div>`)
             var newBlock = $(`.card[package-name="${module.name}"]`)
@@ -186,6 +188,24 @@ $(document).ready(function(){
             objDiv.scrollTop = objDiv.scrollHeight;
         },100)
     }
+    function getReadme(packageName){
+        return new Promise(function(resolve){
+            $.get(`${superApiPrefix}${$user.sessionKey}/plugins/readme/${packageName}`,function(data){
+                if(!data.ok)console.error(data);
+                resolve(data.readme || '')
+            })
+        })
+    }
+    async function toggleReadme(packageName){
+        var readmeView = loadedBlocks[packageName].block.find('.readme-view')
+        var isHidden = readmeView.hasClass('d-none')
+        if(isHidden){
+            var readmeHTML = await getReadme(packageName)
+            readmeView.removeClass('d-none').html(readmeHTML)
+        }else{
+            readmeView.addClass('d-none').empty()
+        }
+    }
     $('body')
     .on(`submit`,`[plugin-manager-command-line]`,function(e){
         e.preventDefault()
@@ -206,6 +226,9 @@ $(document).ready(function(){
         var card = el.parents('[package-name]')
         var packageName = card.attr('package-name')
         switch(action){
+            case'readmeToggle':
+                toggleReadme(packageName)
+            break;
             case'run':
                 var scriptName = el.attr('data-script')
                 runModuleCommand(packageName,scriptName,function(data){

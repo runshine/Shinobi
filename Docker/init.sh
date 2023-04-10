@@ -81,7 +81,7 @@ if [ ! -e "/config/conf.json" ]; then
   node tools/modifyConfiguration.js cpuUsageMarker=CPU subscriptionId=$SUBSCRIPTION_ID thisIsDocker=true pluginKeys="$PLUGIN_KEYS" databaseType="$DB_TYPE" db="$DATABASE_CONFIG" ssl="$SSL_CONFIG"
   cp /config/conf.json conf.json
 fi
-sudo sed -i -e 's/change_this_to_something_very_random__just_anything_other_than_this/'"$cronKey"'/g' conf.json
+sed -i -e 's/change_this_to_something_very_random__just_anything_other_than_this/'"$cronKey"'/g' conf.json
 
 
 echo "============="

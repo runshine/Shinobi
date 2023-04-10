@@ -38,7 +38,7 @@ module.exports = (s,config,lang) => {
             activeProbes[auth] = 1
             var stderr = ''
             var stdout = ''
-            const probeCommand = splitForFFPMEG(`${customInput ? customInput + ' ' : ''}-analyzeduration 10000 -probesize 10000 -v quiet -print_format json -show_format -show_streams -i "${url}"`)
+            const probeCommand = splitForFFMPEG(`${customInput ? customInput + ' ' : ''}-analyzeduration 10000 -probesize 10000 -v quiet -print_format json -show_format -show_streams -i "${url}"`)
             var processTimeout = null
             var ffprobeLocation = config.ffmpegDir.split('/')
             ffprobeLocation[ffprobeLocation.length - 1] = 'ffprobe'
@@ -184,7 +184,7 @@ module.exports = (s,config,lang) => {
         }
         return stdioPipes
     }
-    const splitForFFPMEG = function(ffmpegCommandAsString) {
+    const splitForFFMPEG = function(ffmpegCommandAsString) {
         return ffmpegCommandAsString.replace(/\s+/g,' ').trim().match(/\\?.|^$/g).reduce((p, c) => {
             if(c === '"'){
                 p.quote ^= 1;
@@ -378,7 +378,7 @@ Run "npm install ffbinaries" to get this static FFmpeg downloader.`
         validateDimensions: validateDimensions,
         sanitizedFfmpegCommand: sanitizedFfmpegCommand,
         createPipeArray: createPipeArray,
-        splitForFFPMEG: splitForFFPMEG,
+        splitForFFMPEG: splitForFFMPEG,
         checkForWindows: checkForWindows,
         checkForUnix: checkForUnix,
         checkForNpmStatic: checkForNpmStatic,

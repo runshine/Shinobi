@@ -442,6 +442,23 @@ module.exports = function(s,config){
             }
         }
     }
+    async function alterColumn(tableName,columns){
+        try{
+            for (let i = 0; i < columns.length; i++) {
+                const column = columns[i]
+                if(!column)return;
+                await s.databaseEngine.schema.alterTable(tableName, table => {
+                    let action = table[column.type](column.name,column.length)
+                    if(column.defaultTo !== null && column.defaultTo !== undefined){
+                        action = action.defaultTo(column.defaultTo)
+                    }
+                    action.alter()
+                })
+            }
+        }catch(err){
+            s.debugLog(err)
+        }
+    }
     async function createTable(tableName,columns,onSuccess){
         try{
             const exists = await s.databaseEngine.schema.hasTable(tableName)
@@ -478,6 +495,7 @@ module.exports = function(s,config){
         sqlQueryBetweenTimesWithPermissions: sqlQueryBetweenTimesWithPermissions,
         currentTimestamp,
         createTable,
+        alterColumn,
         addColumn,
         isMySQL,
     }

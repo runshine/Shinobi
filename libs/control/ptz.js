@@ -47,11 +47,21 @@ module.exports = function(s,config,lang){
                 ok: true,
                 type: lang[doStart ? 'Control Triggered' : 'Control Trigger Ended']
             }
-            const theRequest = fetchWithAuthentication(requestUrl,{
-                method: controlUrlMethod || controlOptions.method,
-                digestAuth: hasDigestAuthEnabled,
-                postData: controlOptions.postData || null
-            });
+            var fetchWithAuthData;
+            if (controlOptions.postData){
+                fetchWithAuthData = {
+                    method: controlUrlMethod || controlOptions.method,
+                    digestAuth: hasDigestAuthEnabled,
+                    postData: controlOptions.postData
+                }
+            }
+            else{
+                 fetchWithAuthData = {
+                    method: controlUrlMethod || controlOptions.method,
+                    digestAuth: hasDigestAuthEnabled
+                }
+            }
+            const theRequest = fetchWithAuthentication(requestUrl,fetchWithAuthData);
             theRequest.then(res => res.text())
             .then((data) => {
                 if(doStart){

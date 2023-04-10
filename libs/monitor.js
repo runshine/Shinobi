@@ -12,7 +12,7 @@ module.exports = function(s,config,lang){
         asyncSetTimeout,
     } = require('./basic/utils.js')(process.cwd(),config)
     const {
-        splitForFFPMEG,
+        splitForFFMPEG,
     } = require('./ffmpeg/utils.js')(s,config,lang)
     const {
         processKill,
@@ -194,7 +194,7 @@ module.exports = function(s,config,lang){
                         var iconImageFile = streamDir + 'icon.jpg'
                         const snapRawFilters = monitor.details.cust_snap_raw
                         if(snapRawFilters)outputOptions.push(snapRawFilters);
-                        var ffmpegCmd = splitForFFPMEG(`-y -loglevel warning ${isDetectorStream ? '-live_start_index 2' : ''} -re ${inputOptions.join(' ')} -i "${url}" ${outputOptions.join(' ')} -f image2 -an -frames:v 1 "${temporaryImageFile}"`)
+                        var ffmpegCmd = splitForFFMPEG(`-y -loglevel warning ${isDetectorStream ? '-live_start_index 2' : ''} -re ${inputOptions.join(' ')} -i "${url}" ${outputOptions.join(' ')} -f image2 -an -frames:v 1 "${temporaryImageFile}"`)
                         try{
                             await fs.promises.mkdir(streamDir, {recursive: true}, (err) => {s.debugLog(err)})
                         }catch(err){
@@ -316,7 +316,7 @@ module.exports = function(s,config,lang){
                             //not exist
                             var cat = 'cat '+copiedItems.join(' ')+' > '+allts
                             exec(cat,function(){
-                                var merger = spawn(config.ffmpegDir,splitForFFPMEG(('-re -i '+allts+' -acodec copy -vcodec copy -t 00:00:' + videoLength + ' '+pathDir+mergedFile)))
+                                var merger = spawn(config.ffmpegDir,splitForFFMPEG(('-re -i '+allts+' -acodec copy -vcodec copy -t 00:00:' + videoLength + ' '+pathDir+mergedFile)))
                                 merger.stderr.on('data',function(data){
                                     s.userLog(monitor,{type:"Buffer Merge",msg:data.toString()})
                                 })
@@ -405,7 +405,7 @@ module.exports = function(s,config,lang){
                         ke: groupKey,
                         mid: '$USER'
                     },{type:lang['Videos Merge'],msg:mergedFile})
-                    var merger = spawn(config.ffmpegDir,splitForFFPMEG(('-re -loglevel warning -i ' + mergedRawFilepath + ' -acodec copy -vcodec copy ' + mergedFilepath)))
+                    var merger = spawn(config.ffmpegDir,splitForFFMPEG(('-re -loglevel warning -i ' + mergedRawFilepath + ' -acodec copy -vcodec copy ' + mergedFilepath)))
                     merger.stderr.on('data',function(data){
                         s.userLog({
                             ke: groupKey,

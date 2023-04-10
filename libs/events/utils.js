@@ -15,7 +15,7 @@ module.exports = (s,config,lang) => {
     const acceptableOperators = ['indexOf','!indexOf','===','!==','>=','>','<','<=']
     // Event Filters />
     const {
-        splitForFFPMEG
+        splitForFFMPEG
     } = require('../ffmpeg/utils.js')(s,config,lang)
     const {
         moveCameraPtzToMatrix
@@ -556,7 +556,7 @@ module.exports = (s,config,lang) => {
                 s.debugLog(ffmpegCommand)
                 activeMonitor.eventBasedRecording.process = spawn(
                     config.ffmpegDir,
-                    splitForFFPMEG(ffmpegCommand)
+                    splitForFFMPEG(ffmpegCommand)
                 )
                 activeMonitor.eventBasedRecording.process.stderr.on('data',function(data){
                     s.userLog(d,{

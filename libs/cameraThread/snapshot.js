@@ -45,7 +45,9 @@ const rawMonitorConfig = jsonData.rawMonitorConfig
 // var writeToStderr = function(text){
 //   process.stderr.write(Buffer.from(text))
 // }
-
+var timeout = setTimeout(() => {
+    exitAction()
+},10000)
 var snapProcess = spawn(ffmpegAbsolutePath,ffmpegCommandString,{detached: true})
 snapProcess.stderr.on('data',(data)=>{
   writeToStderr(data.toString())
@@ -54,6 +56,7 @@ snapProcess.stdout.on('data',(data)=>{
   writeToStderr(data.toString())
 })
 snapProcess.on('close',function(data){
+    clearTimeout(timeout)
   if(useIcon){
     var iconStream = fs.createWriteStream(iconImageFile);
     var fileCopy = fs.createReadStream(temporaryImageFile).pipe(iconStream)

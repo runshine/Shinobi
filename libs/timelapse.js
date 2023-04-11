@@ -49,7 +49,7 @@ module.exports = function(s,config,lang,app,io){
             size: fileStats.size,
             time: timeNow
         }
-        if(config.childNodes.enabled === true && config.childNodes.mode === 'child' && config.childNodes.host){
+        if(config.childNodes.enabled === true && config.childNodes.mode === 'child' && config.childNodes.host && config.dropTimeLapseFrames != true){
             var currentDate = s.formattedTime(timeNow,'YYYY-MM-DD')
             const childNodeData = {
                 ke: e.ke,
@@ -60,7 +60,7 @@ module.exports = function(s,config,lang,app,io){
                 queryInfo: queryInfo
             }
             sendTimelapseFrameToMasterNode(filePath,childNodeData)
-        }else{
+        }else if (config.dropTimeLapseFrames != true ){
             s.insertTimelapseFrameDatabaseRow(e,queryInfo,filePath)
         }
     }

@@ -472,6 +472,10 @@ $(document).ready(function(e){
             if(!monitorSlotPlaySpeeds)monitorSlotPlaySpeeds[video.mid] = {}
             powerVideoMonitorViewsElement.append(`<div class="videoPlayer" style="width:49.8%;max-width:500px;min-width:250px;" data-mid="${video.mid}">
                 <div class="videoPlayer-detection-info">
+                    <div class="videoPlayer-detection-info-buttons btn-group">
+                        <a powerVideo-control="downloadVideo" class="btn btn-sm btn-success"><i class="fa fa-download"></i></a>
+                        <a powerVideo-control="openVideoPlayer" class="btn btn-sm btn-default"><i class="fa fa-external-link"></i></a>
+                    </div>
                     <canvas style="height:400px"></canvas>
                 </div>
                 <div class="videoPlayer-stream-objects"></div>
@@ -566,8 +570,14 @@ $(document).ready(function(e){
         var selectedMonitors = Object.keys(form).filter(key => form[key] == '1')
         return selectedMonitors
     }
+    function getActiveVideoInSlot(monitorId){
+        return powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid="${monitorId}"] video.videoNow`)[0]
+    }
     function getAllActiveVideosInSlots(){
         return powerVideoMonitorViewsElement.find('video.videoNow')
+    }
+    function getActiveVideoRow(monitorId){
+        return currentlyPlayingVideos[monitorId]
     }
     function pauseAllSlots(){
         getAllActiveVideosInSlots().each(function(n,video){
@@ -669,17 +679,26 @@ $(document).ready(function(e){
         })
         lastPowerVideoSelectedMonitors = ([]).concat(monitorIdsSelectedNow || [])
     }
-    function getFilenameFromUrl(url) {
-      const parts = url.split("/");
-      return parts[parts.length - 1];
+    function downloadPlayingVideo(video){
+        if(video.currentSrc){
+            var filename = getFilenameFromUrl(video.currentSrc)
+            downloadFile(video.currentSrc,filename)
+        }
     }
     function downloadAllPlayingVideos(){
         getAllActiveVideosInSlots().each(function(n,video){
-            if(video.currentSrc){
-                var filename = getFilenameFromUrl(video.currentSrc)
-                downloadFile(video.currentSrc,filename)
-            }
+            downloadPlayingVideo(video)
         })
+    }
+    function openVideoPlayerTabFromViewer(el){
+        var monitorId = el.attr('data-mid') || el.parents('[data-mid]').attr('data-mid')
+        var video = getActiveVideoRow(monitorId)
+        createVideoPlayerTab(video)
+    }
+    function downloadPlayingVideoTabFromViewer(el){
+        var monitorId = el.attr('data-mid') || el.parents('[data-mid]').attr('data-mid')
+        var video = getActiveVideoInSlot(monitorId)
+        downloadPlayingVideo(video)
     }
     powerVideoMonitorsListElement.on('change','input',onPowerVideoSettingsChange);
     powerVideoVideoLimitElement.change(onPowerVideoSettingsChange);
@@ -695,6 +714,14 @@ $(document).ready(function(e){
             var el = $(this)
             var controlType = el.attr('powerVideo-control')
             switch(controlType){
+                // single video affected
+                case'downloadVideo':
+                    downloadPlayingVideoTabFromViewer(el)
+                break;
+                case'openVideoPlayer':
+                    openVideoPlayerTabFromViewer(el)
+                break;
+                // all videos affected
                 case'downloadPlaying':
                     downloadAllPlayingVideos()
                 break;

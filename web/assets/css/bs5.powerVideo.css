@@ -183,3 +183,9 @@
 #powerVideo .vis-labelset .vis-label {
         color: #fff;
 }
+
+#powerVideo .videoPlayer-detection-info-buttons {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}

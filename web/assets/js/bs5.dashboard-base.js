@@ -883,6 +883,10 @@ function downloadFile(url,filename) {
   link.click();
   document.body.removeChild(link);
 }
+function getFilenameFromUrl(url) {
+  const parts = url.split("/");
+  return parts[parts.length - 1];
+}
 function notifyIfActionFailed(data){
     if(data.ok === false){
         new PNotify({

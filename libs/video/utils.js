@@ -4,7 +4,7 @@ const async = require('async');
 module.exports = (s,config,lang) => {
     const {
         ffprobe,
-        splitForFFPMEG,
+        splitForFFMPEG,
     } = require('../ffmpeg/utils.js')(s,config,lang)
     const {
         copyFile,
@@ -257,7 +257,7 @@ module.exports = (s,config,lang) => {
             const finalMp4OutputLocation = options.output
             const commandString = `-y -threads 1 -f concat -safe 0 -i "${concatListFile}" -c:v copy -an -preset ultrafast "${finalMp4OutputLocation}"`
             s.debugLog("stitchMp4Files",commandString)
-            const videoBuildProcess = spawn(config.ffmpegDir,splitForFFPMEG(commandString))
+            const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
             videoBuildProcess.stdout.on('data',function(data){
                 s.debugLog('stdout',finalMp4OutputLocation,data.toString())
             })
@@ -286,7 +286,7 @@ module.exports = (s,config,lang) => {
                 const outputFilePath = `${videoFolder}${tempFilename}`
                 const commandString = `-y -threads 1 -re -i "${inputFilePath}" -c:v copy -c:a copy -preset ultrafast "${outputFilePath}"`
                 fixingAlready[fixingId] = true
-                const videoBuildProcess = spawn(config.ffmpegDir,splitForFFPMEG(commandString))
+                const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
                 videoBuildProcess.stdout.on('data',function(data){
                     s.debugLog('stdout',outputFilePath,data.toString())
                 })
@@ -409,7 +409,7 @@ module.exports = (s,config,lang) => {
                         oldName: filename,
                         name: finalFilename,
                     },'GRP_'+groupKey);
-                    const videoBuildProcess = spawn(config.ffmpegDir,splitForFFPMEG(commandString))
+                    const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
                     videoBuildProcess.stdout.on('data',function(data){
                         s.debugLog('stdout',outputFilePath,data.toString())
                     })

@@ -7968,6 +7968,18 @@ module.exports = function(s,config,lang){
                               "btns": [
                                   {
                                       "fieldType": "btn",
+                                      "class": `btn-success btn-sm`,
+                                      "attribute": `powerVideo-control="downloadPlaying" title="${lang['Download']}"`,
+                                      "btnContent": `<i class="fa fa-download"></i>`,
+                                  }
+                              ],
+                           },
+                           {
+                              "fieldType": "btn-group",
+                              "normalWidth": true,
+                              "btns": [
+                                  {
+                                      "fieldType": "btn",
                                       "class": `btn-default btn-sm`,
                                       "attribute": `powerVideo-control="toggleZoom" title="${lang['Zoom In']}"`,
                                       "btnContent": `<i class="fa fa-search-plus"></i>`,

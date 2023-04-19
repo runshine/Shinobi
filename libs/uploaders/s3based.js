@@ -70,6 +70,9 @@ module.exports = function(s,config,lang){
             if(!userDetails.whcs_endpoint ){
                 userDetails.whcs_endpoint = 's3.wasabisys.com'
             }
+            if(userDetails.whcs_endpoint.indexOf('://') === -1){
+                userDetails.whcs_endpoint = `https://${userDetails.whcs_endpoint}`
+            }
             s.group[e.ke].whcs = new S3Client({
                 endpoint: userDetails.whcs_endpoint,
                 credentials: {

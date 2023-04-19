@@ -875,11 +875,17 @@ function downloadJSON(jsonData,filename){
         .attr('download',filename)
         [0].click()
 }
-function downloadFile(downloadUrl,fileName){
-    var a = document.createElement('a')
-    a.href = downloadUrl
-    a.download = fileName
-    a.click()
+function downloadFile(url,filename) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+function getFilenameFromUrl(url) {
+  const parts = url.split("/");
+  return parts[parts.length - 1];
 }
 function notifyIfActionFailed(data){
     if(data.ok === false){
@@ -986,7 +992,7 @@ function convertJsonToAccordionHtml(theJson){
         keys.forEach((key) => {
             var value = innerJson[key]
             var isObject = typeof value === 'object' || typeof value === 'array'
-            if(value)html += `<li><a class="badge btn btn-sm ${isObject ? `toggle-accordion-list btn-primary` : `btn-default`}"><i class="fa fa-${isObject ? `plus` : `circle`}"></i></a> ${key} ${isObject ? recurseJson(value,true) : `: ${value}`}</li>`
+            if(value === 0 || value === false || value)html += `<li><a class="badge btn btn-sm ${isObject ? `toggle-accordion-list btn-primary` : `btn-default`}"><i class="fa fa-${isObject ? `plus` : `circle`}"></i></a> ${key} ${isObject ? recurseJson(value,true) : `: ${value}`}</li>`
         })
         html += `</ul>`
         return html

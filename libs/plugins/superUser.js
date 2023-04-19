@@ -4,6 +4,7 @@ const unzipper = require('unzipper')
 const spawn = require('child_process').spawn
 const exec = require('child_process').execSync
 const treekill = require('tree-kill');
+const marked = require('marked').parse;
 const {
   Worker
 } = require('worker_threads');
@@ -342,6 +343,20 @@ module.exports = async (s,config,lang,app,io,currentUse) => {
             }
         })
     }
+    async function getPluginReadme(name,asHTML){
+        const modulePath = getModulePath(name)
+        const readmePath = modulePath + 'README.md'
+        let readmeData = lang['No README found']
+        try{
+            readmeData = await fs.promises.readFile(readmePath,'utf8')
+        }catch(err){
+            console.log(err)
+        }
+        if(asHTML){
+            readmeData = marked(readmeData)
+        }
+        return readmeData
+    }
     /**
     * API : Superuser : Custom Auto Load Package Download.
     */
@@ -547,6 +562,16 @@ module.exports = async (s,config,lang,app,io,currentUse) => {
         s.superAuth(req.params, async (resp) => {
             await initializeAllModules();
             s.closeJsonResponse(res,{ok: true})
+        },res,req)
+    })
+    /**
+    * API : Superuser : Get Plugin README
+    */
+    app.get(config.webPaths.superApiPrefix+':auth/plugins/readme/:pluginName', async (req,res) => {
+        s.superAuth(req.params, async (resp) => {
+            const name = req.params.pluginName
+            const readme = await getPluginReadme(name,true);
+            s.closeJsonResponse(res,{ok: true, readme: readme})
         },res,req)
     })
     s.onProcessReady(async () => {

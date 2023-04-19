@@ -456,12 +456,7 @@ $(document).ready(function(e){
         motionMeterProgressBarTextBox.text('0')
     }
     function resetWidthForActiveVideoPlayers(){
-        var numberOfMonitors = 0
-        powerVideoMonitorViewsElement.find(`.videoPlayer .videoNow`).each(function(n,videoEl){
-            if(videoEl.currentTime > 0)numberOfMonitors += 1
-        })
-        var widthOfBlock = 100 / numberOfMonitors
-        powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`${widthOfBlock}%`)
+        powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`49.8%`)
     }
     function loadVideoIntoMonitorSlot(video,selectedTime){
         if(!video)return
@@ -472,12 +467,15 @@ $(document).ready(function(e){
         // if(numberOfMonitors > 3)numberOfMonitors = 3 //start new row after 3
         if(numberOfMonitors == 1)numberOfMonitors = 2 //make single monitor not look like a doofus
         if(timeToStartAt < 0)timeToStartAt = 0
-        var widthOfBlock = 100 / numberOfMonitors
         var videoContainer = powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid=${video.mid}] .videoPlayer-buffers`)
         if(videoContainer.length === 0){
             if(!monitorSlotPlaySpeeds)monitorSlotPlaySpeeds[video.mid] = {}
-            powerVideoMonitorViewsElement.append(`<div class="videoPlayer" style="width:${widthOfBlock}%;max-width:500px" data-mid="${video.mid}">
+            powerVideoMonitorViewsElement.append(`<div class="videoPlayer" style="width:49.8%;max-width:500px;min-width:250px;" data-mid="${video.mid}">
                 <div class="videoPlayer-detection-info">
+                    <div class="videoPlayer-detection-info-buttons btn-group">
+                        <a powerVideo-control="downloadVideo" class="btn btn-sm btn-success"><i class="fa fa-download"></i></a>
+                        <a powerVideo-control="openVideoPlayer" class="btn btn-sm btn-default"><i class="fa fa-external-link"></i></a>
+                    </div>
                     <canvas style="height:400px"></canvas>
                 </div>
                 <div class="videoPlayer-stream-objects"></div>
@@ -488,7 +486,7 @@ $(document).ready(function(e){
             </div>`)
             videoContainer = powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid=${video.mid}] .videoPlayer-buffers`)
         }else{
-            powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`${widthOfBlock}%`)
+            powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`49.8%`)
         }
         var videoCurrentNow = videoContainer.find('.videoNow')
         var videoCurrentAfter = videoContainer.find('.videoAfter')
@@ -572,8 +570,14 @@ $(document).ready(function(e){
         var selectedMonitors = Object.keys(form).filter(key => form[key] == '1')
         return selectedMonitors
     }
+    function getActiveVideoInSlot(monitorId){
+        return powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid="${monitorId}"] video.videoNow`)[0]
+    }
     function getAllActiveVideosInSlots(){
         return powerVideoMonitorViewsElement.find('video.videoNow')
+    }
+    function getActiveVideoRow(monitorId){
+        return currentlyPlayingVideos[monitorId]
     }
     function pauseAllSlots(){
         getAllActiveVideosInSlots().each(function(n,video){
@@ -675,6 +679,27 @@ $(document).ready(function(e){
         })
         lastPowerVideoSelectedMonitors = ([]).concat(monitorIdsSelectedNow || [])
     }
+    function downloadPlayingVideo(video){
+        if(video.currentSrc){
+            var filename = getFilenameFromUrl(video.currentSrc)
+            downloadFile(video.currentSrc,filename)
+        }
+    }
+    function downloadAllPlayingVideos(){
+        getAllActiveVideosInSlots().each(function(n,video){
+            downloadPlayingVideo(video)
+        })
+    }
+    function openVideoPlayerTabFromViewer(el){
+        var monitorId = el.attr('data-mid') || el.parents('[data-mid]').attr('data-mid')
+        var video = getActiveVideoRow(monitorId)
+        createVideoPlayerTab(video)
+    }
+    function downloadPlayingVideoTabFromViewer(el){
+        var monitorId = el.attr('data-mid') || el.parents('[data-mid]').attr('data-mid')
+        var video = getActiveVideoInSlot(monitorId)
+        downloadPlayingVideo(video)
+    }
     powerVideoMonitorsListElement.on('change','input',onPowerVideoSettingsChange);
     powerVideoVideoLimitElement.change(onPowerVideoSettingsChange);
     powerVideoEventLimitElement.change(onPowerVideoSettingsChange);
@@ -689,6 +714,17 @@ $(document).ready(function(e){
             var el = $(this)
             var controlType = el.attr('powerVideo-control')
             switch(controlType){
+                // single video affected
+                case'downloadVideo':
+                    downloadPlayingVideoTabFromViewer(el)
+                break;
+                case'openVideoPlayer':
+                    openVideoPlayerTabFromViewer(el)
+                break;
+                // all videos affected
+                case'downloadPlaying':
+                    downloadAllPlayingVideos()
+                break;
                 case'toggleMute':
                     toggleMute()
                 break;

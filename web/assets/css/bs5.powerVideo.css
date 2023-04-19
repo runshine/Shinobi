@@ -40,7 +40,7 @@
 #powerVideo .videoPlayer .videoPlayer-detection-info {
     position: absolute;
     padding: 20px 10px 20px 10px;
-    /* height: 100%; */
+    height: 100%;
     width: 100%;
     top: 0;
     left: 0;

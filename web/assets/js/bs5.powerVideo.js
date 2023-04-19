@@ -456,12 +456,7 @@ $(document).ready(function(e){
         motionMeterProgressBarTextBox.text('0')
     }
     function resetWidthForActiveVideoPlayers(){
-        var numberOfMonitors = 0
-        powerVideoMonitorViewsElement.find(`.videoPlayer .videoNow`).each(function(n,videoEl){
-            if(videoEl.currentTime > 0)numberOfMonitors += 1
-        })
-        var widthOfBlock = 100 / numberOfMonitors
-        powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`${widthOfBlock}%`)
+        powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`49.8%`)
     }
     function loadVideoIntoMonitorSlot(video,selectedTime){
         if(!video)return
@@ -472,11 +467,10 @@ $(document).ready(function(e){
         // if(numberOfMonitors > 3)numberOfMonitors = 3 //start new row after 3
         if(numberOfMonitors == 1)numberOfMonitors = 2 //make single monitor not look like a doofus
         if(timeToStartAt < 0)timeToStartAt = 0
-        var widthOfBlock = 100 / numberOfMonitors
         var videoContainer = powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid=${video.mid}] .videoPlayer-buffers`)
         if(videoContainer.length === 0){
             if(!monitorSlotPlaySpeeds)monitorSlotPlaySpeeds[video.mid] = {}
-            powerVideoMonitorViewsElement.append(`<div class="videoPlayer" style="width:${widthOfBlock}%;max-width:500px" data-mid="${video.mid}">
+            powerVideoMonitorViewsElement.append(`<div class="videoPlayer" style="width:49.8%;max-width:500px;min-width:250px;" data-mid="${video.mid}">
                 <div class="videoPlayer-detection-info">
                     <canvas style="height:400px"></canvas>
                 </div>
@@ -488,7 +482,7 @@ $(document).ready(function(e){
             </div>`)
             videoContainer = powerVideoMonitorViewsElement.find(`.videoPlayer[data-mid=${video.mid}] .videoPlayer-buffers`)
         }else{
-            powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`${widthOfBlock}%`)
+            powerVideoMonitorViewsElement.find('.videoPlayer').css('width',`49.8%`)
         }
         var videoCurrentNow = videoContainer.find('.videoNow')
         var videoCurrentAfter = videoContainer.find('.videoAfter')
@@ -675,6 +669,18 @@ $(document).ready(function(e){
         })
         lastPowerVideoSelectedMonitors = ([]).concat(monitorIdsSelectedNow || [])
     }
+    function getFilenameFromUrl(url) {
+      const parts = url.split("/");
+      return parts[parts.length - 1];
+    }
+    function downloadAllPlayingVideos(){
+        getAllActiveVideosInSlots().each(function(n,video){
+            if(video.currentSrc){
+                var filename = getFilenameFromUrl(video.currentSrc)
+                downloadFile(video.currentSrc,filename)
+            }
+        })
+    }
     powerVideoMonitorsListElement.on('change','input',onPowerVideoSettingsChange);
     powerVideoVideoLimitElement.change(onPowerVideoSettingsChange);
     powerVideoEventLimitElement.change(onPowerVideoSettingsChange);
@@ -689,6 +695,9 @@ $(document).ready(function(e){
             var el = $(this)
             var controlType = el.attr('powerVideo-control')
             switch(controlType){
+                case'downloadPlaying':
+                    downloadAllPlayingVideos()
+                break;
                 case'toggleMute':
                     toggleMute()
                 break;

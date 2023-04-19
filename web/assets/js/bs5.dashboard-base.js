@@ -875,11 +875,13 @@ function downloadJSON(jsonData,filename){
         .attr('download',filename)
         [0].click()
 }
-function downloadFile(downloadUrl,fileName){
-    var a = document.createElement('a')
-    a.href = downloadUrl
-    a.download = fileName
-    a.click()
+function downloadFile(url,filename) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 function notifyIfActionFailed(data){
     if(data.ok === false){

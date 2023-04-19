@@ -58,7 +58,7 @@ function generateDefaultMonitorSettings(){
            "hwaccel_vcodec": "",
            "hwaccel_device": "",
            "use_coprocessor": null,
-           "stream_type": "mp4",
+           "stream_type": "hls",
            "stream_flv_type": "http",
            "stream_flv_maxLatency": "",
            "stream_mjpeg_clients": "",

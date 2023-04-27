@@ -2931,6 +2931,24 @@ module.exports = function(s,config,lang){
                                  }
                               ]
                            },
+                           {
+                               isAdvanced: true,
+                              "name": "detail=detector_motion_save_frame",
+                              "field": lang["Save Frames"],
+                              "description": lang["fieldTextSaveFrames"],
+                              "default": "0",
+                              "fieldType": "select",
+                              "possible": [
+                                 {
+                                    "name": lang.No,
+                                    "value": "0"
+                                 },
+                                 {
+                                    "name": lang.Yes,
+                                    "value": "1"
+                                 }
+                              ]
+                           },
                            // {
                            //    "name": "detail=detector_show_matrix",
                            //    "field": lang["Show Matrices"],

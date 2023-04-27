@@ -392,7 +392,7 @@ module.exports = (s,config,lang) => {
         //save this detection result in SQL, only coords. not image.
         if(d.frame){
             saveImageFromEvent({
-                ke: d.ke,
+                ke: groupKey,
                 mid: monitorId,
                 time: eventTime,
                 matrices: eventDetails.matrices || [],
@@ -406,25 +406,26 @@ module.exports = (s,config,lang) => {
               (monitorDetails.detector_use_detect_object === '1' && monitorDetails.detector_use_motion !== '1')
             )
         ){
-          motionFrameSaveTimeouts[timeoutId] = setTimeout(() => {
-              delete(motionFrameSaveTimeouts[timeoutId])
-          },10000)
-          const { screenShot, isStaticFile } = await s.getRawSnapshotFromMonitor(monitorConfig,{
-              secondsInward: parseInt(monitorConfig.details.detector_buffer_seconds_before) || 5
-          })
-          saveImageFromEvent({
-              ke: d.ke,
-              mid: monitorId,
-              time: eventTime,
-              matrices: eventDetails.matrices || [],
-          }, screenShot)
+            motionFrameSaveTimeouts[timeoutId] = setTimeout(() => {
+                delete(motionFrameSaveTimeouts[timeoutId])
+            },10000);
+            s.getRawSnapshotFromMonitor(monitorConfig,{
+                secondsInward: parseInt(monitorConfig.details.detector_buffer_seconds_before) || 5
+            }).then(({ screenShot, isStaticFile }) => {
+                saveImageFromEvent({
+                    ke: groupKey,
+                    mid: monitorId,
+                    time: eventTime,
+                    matrices: eventDetails.matrices || [],
+                }, screenShot)
+            })
         }
         if(forceSave || (filter.save || monitorDetails.detector_save === '1')){
             s.knexQuery({
                 action: "insert",
                 table: "Events",
                 insert: {
-                    ke: d.ke,
+                    ke: groupKey,
                     mid: monitorId,
                     details: detailString,
                     time: s.formattedTime(eventTime),

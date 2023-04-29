@@ -109,21 +109,33 @@ function applyTimelapseFramesListToVideos(videos,events,keyName,reverseList){
     })
     return newVideos
 }
-function getFrameOnVideoRow(percentageInward,video){
-    var startTime = video.time
-    var endTime = video.end
-    var timeDifference = endTime - startTime
-    var timeInward = timeDifference / (100 / percentageInward)
-    var timeAdded = new Date(startTime.getTime() + timeInward) // ms
-    var frames = video.timelapseFrames || []
-    var foundFrame = frames.length === 1 ? frames[0] : frames.find(function(row){
-        return new Date(row.time) >= timeAdded
+function getFrameOnVideoRow(percentageInward, video) {
+    var startTime = video.time;
+    var endTime = video.end;
+    var timeDifference = endTime - startTime;
+    var timeInward = timeDifference / (100 / percentageInward);
+    var timeAdded = new Date(startTime.getTime() + timeInward); // ms
+    var frames = video.timelapseFrames || [];
+
+    if (frames.length === 1) {
+        return {
+            timeInward: timeInward,
+            foundFrame: frames[0],
+            timeAdded: timeAdded,
+        };
+    }
+
+    var closestFrame = frames.reduce(function(prev, curr) {
+        var prevDiff = Math.abs(timeAdded - new Date(prev.time));
+        var currDiff = Math.abs(timeAdded - new Date(curr.time));
+        return (prevDiff < currDiff) ? prev : curr;
     });
+
     return {
         timeInward: timeInward,
-        foundFrame: foundFrame,
+        foundFrame: closestFrame,
         timeAdded: timeAdded,
-    }
+    };
 }
 function getVideoFromDay(percentageInward, reversedVideos, startTime, endTime) {
     var timeDifference = endTime - startTime;

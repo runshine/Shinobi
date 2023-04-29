@@ -165,7 +165,7 @@ function bindFrameFindingByMouseMoveForDay(createdCardCarrier,dayKey,videos,allF
     function onSeek(evt, isTouch){
         var offest = createdCardElement.offset()
         var elementWidth = createdCardElement.width() + 2
-        var amountMoved = evt.pageX - offest.left
+        var amountMoved = (isTouch ? evt.originalEvent.touches[0] : evt).pageX - offest.left
         var percentMoved = amountMoved / elementWidth * 100
         percentMoved = percentMoved > 100 ? 100 : percentMoved < 0 ? 0 : percentMoved
         var videoFound = videos[0] ? getVideoFromDay(percentMoved,reversedVideos,dayStart,dayEnd) : null
@@ -195,6 +195,9 @@ function bindFrameFindingByMouseMoveForDay(createdCardCarrier,dayKey,videos,allF
     }
     createdCardElement.on('mousemove',function(evt){
         onSeek(evt, false)
+    })
+    createdCardElement.on('touchmove',function(evt){
+        onSeek(evt, true)
     })
 }
 function getPercentOfTimePositionFromVideo(video,theEvent){

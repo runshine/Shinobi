@@ -125,15 +125,18 @@ function getFrameOnVideoRow(percentageInward,video){
         timeAdded: timeAdded,
     }
 }
-function getVideoFromDay(percentageInward,reversedVideos,startTime,endTime){
-    var timeDifference = endTime - startTime
-    var timeInward = timeDifference / (100 / percentageInward)
-    var timeAdded = new Date(startTime.getTime() + timeInward) // ms
-    var foundVideoIndex = reversedVideos.findIndex(function(row){
-        return new Date(timeAdded) >= new Date(row.time)
+function getVideoFromDay(percentageInward, reversedVideos, startTime, endTime) {
+    var timeDifference = endTime - startTime;
+    var timeInward = timeDifference / (100 / percentageInward);
+    var timeAdded = new Date(startTime.getTime() + timeInward); // ms
+
+    var closestVideo = reversedVideos.reduce(function (prev, curr) {
+        var prevDiff = Math.abs(timeAdded - new Date(prev.time));
+        var currDiff = Math.abs(timeAdded - new Date(curr.time));
+        return (prevDiff < currDiff) ? prev : curr;
     });
-    var foundVideo = reversedVideos[foundVideoIndex - 1] || reversedVideos[foundVideoIndex] || reversedVideos[0]
-    return foundVideo
+
+    return closestVideo;
 }
 // function bindFrameFindingByMouseMove(createdCardCarrier,video){
 //     var createdCardElement = createdCardCarrier.find('.video-time-card').first()
@@ -424,7 +427,7 @@ function createDayCard(videos,frames,dayKey,monitorId,classOverride){
             </div>
             <div class="video-time-strip card-footer p-0">
                 <div class="flex-row d-flex" style="height:30px">${eventMatrixHtml}</div>
-                <div class="video-time-needle video-time-needle-seeker" ${firstVideoTime ? `video-time-seeked-video-position="${firstVideoTime}"` : ''} data-mid="${monitorId}" style="z-index: 2"></div>
+                <div class="video-time-needle video-time-needle-seeker" ${firstVideoTime ? `video-time-seeked-video-position="${firstVideoTime}"` : ''} data-mid="${monitorId}"></div>
             </div>
         </div>
     </div>`

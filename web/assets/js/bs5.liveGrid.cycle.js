@@ -37,6 +37,7 @@ function stopCycleLive(){
     liveGridCycleTimer = null
 }
 function resumeCycleLive(fullList,partForCycle,numberOfMonitors){
+    const theLocalStorage = dashboardOptions()
     const cycleLiveTimerAmount = parseInt(theLocalStorage.cycleLiveTimerAmount) || 30000
     function next(){
         var afterMonitorId = partForCycle.slice(-1)[0].mid;

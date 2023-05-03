@@ -57,8 +57,9 @@ $(document).ready(function(e){
             height: imageHeight
         });
         if(Object.keys(monitorDetails.cords).length === 0){
+            const regionName = lang['Region Name']
             monitorDetails.cords = {}
-            monitorDetails.cords[generateId(5)] = createBlankCoorindateObject(lang['Region Name'])
+            monitorDetails.cords[regionName] = createBlankCoorindateObject(regionName)
         }
         regionViewerDetails = monitorDetails;
         initiateRegionList()
@@ -99,7 +100,11 @@ $(document).ready(function(e){
     function saveCoords(coorindates){
         var monitorId = getCurrentlySelectedMonitorId()
         var monitorConfig = Object.assign({},loadedMonitors[monitorId])
-        var regionCoordinates = Object.assign({},coorindates || regionViewerDetails.cords instanceof Object ? regionViewerDetails.cords : safeJsonParse(regionViewerDetails.cords) || {});
+        var regionCoordinates = {};
+        var randomCoordinates = Object.assign({},coorindates || regionViewerDetails.cords instanceof Object ? regionViewerDetails.cords : safeJsonParse(regionViewerDetails.cords) || {});
+        $.each(randomCoordinates,function(randomId,region){
+            regionCoordinates[region.name] = region
+        })
         regionEditorForm.find('[detail]').each(function(n,v){
             var el = $(this);
             var key = el.attr('detail')
@@ -302,7 +307,7 @@ $(document).ready(function(e){
     regionEditorWindow.on('click','.add',function(e){
         e.stopPropagation()
         regionEditorForm.find('input').prop('disabled',false)
-        var randomId = generateId(5);
+        var regionName = lang['Region Name'];
         var newCoordinates = {}
         $.each(regionViewerDetails.cords,function(n,v){
             if(v && v !== null && v !== 'null'){
@@ -310,9 +315,9 @@ $(document).ready(function(e){
             }
         })
         regionViewerDetails.cords = newCoordinates
-        regionViewerDetails.cords[randomId] = createBlankCoorindateObject(lang['Region Name'])
-        regionEditorRegionsList.append(`<option value="${randomId}">${lang['Region Name']}</option>`)
-        regionEditorRegionsList.val(randomId)
+        regionViewerDetails.cords[regionName] = createBlankCoorindateObject(regionName)
+        regionEditorRegionsList.append(`<option value="${regionName}">${lang['Region Name']}</option>`)
+        regionEditorRegionsList.val(regionName)
         regionEditorRegionsList.change()
         return false;
     })

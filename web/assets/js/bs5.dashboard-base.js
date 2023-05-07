@@ -793,21 +793,21 @@ function buildLogRow(v){
     return html
 }
 function logWriterDraw(id,data){
-    if(logWriterFloodLock)return debugLog('logWriterFloodLock : Log was dropped');
+    // if(logWriterFloodLock)return debugLog('logWriterFloodLock : Log was dropped');
     var elementTags = '#global-log-stream,'+id+'.monitor_item .logs:visible,'+id+'#tab-monitorSettings:visible .logs'
-    if(logWriterFloodTimeout){
-        ++logWriterFloodCounter
-    }
-    if(logWriterFloodCounter > 10){
-        window.logWriterFloodLock = setTimeout(function(){
-            delete(logWriterFloodLock)
-        },10000)
-    }
-    clearTimeout(logWriterFloodTimeout)
-    logWriterFloodTimeout = setTimeout(function(){
-        delete(logWriterFloodTimeout)
-        logWriterFloodCounter = 0
-    },2000)
+    // if(logWriterFloodTimeout){
+    //     ++logWriterFloodCounter
+    // }
+    // if(logWriterFloodCounter > 10){
+    //     window.logWriterFloodLock = setTimeout(function(){
+    //         delete(logWriterFloodLock)
+    //     },10000)
+    // }
+    // clearTimeout(logWriterFloodTimeout)
+    // logWriterFloodTimeout = setTimeout(function(){
+    //     delete(logWriterFloodTimeout)
+    //     logWriterFloodCounter = 0
+    // },2000)
     if(!data.time)data.time = formattedTime();
     var html = buildLogRow({
         ke: data.ke,

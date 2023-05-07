@@ -280,7 +280,7 @@ function isLiveGridLogStreamOpenBefore(monitorId){
     var liveGridLogStreams = dashboardOptions().liveGridLogStreams || {}
     return liveGridLogStreams[monitorId]
 }
-function drawLiveGridBlock(monitorConfig,subStreamChannel){
+function drawLiveGridBlock(monitorConfig,subStreamChannel,forcedMonitorsPerRow,monitorHeight){
     var monitorId = monitorConfig.mid
     if($('#monitor_live_' + monitorId).length === 0){
         var x = null;
@@ -292,7 +292,19 @@ function drawLiveGridBlock(monitorConfig,subStreamChannel){
         var html = buildLiveGridBlock(monitorConfig)
         var monitorOrderEngaged = dashboardOptions().switches.monitorOrder === 1;
         var wasLiveGridLogStreamOpenBefore = isLiveGridLogStreamOpenBefore(monitorId)
-        if(monitorOrderEngaged && $user.details.monitorOrder && $user.details.monitorOrder[monitorConfig.ke+''+monitorId]){
+        if(forcedMonitorsPerRow){
+            var windowHeight = $(window).height()
+            var legend = {
+                "1": 12,
+                "2": {w: 6, h: 4},
+                "3": 4,
+                "4": 3,
+                "6": 2,
+            }
+            var dimensionsConverted = legend[`${forcedMonitorsPerRow}`] || legend["2"];
+            width = dimensionsConverted.w ? dimensionsConverted.w : dimensionsConverted;
+            height = monitorHeight ? monitorHeight : dimensionsConverted.h ? dimensionsConverted.h : dimensionsConverted;
+        }else if(monitorOrderEngaged && $user.details.monitorOrder && $user.details.monitorOrder[monitorConfig.ke+''+monitorId]){
             var saved = $user.details.monitorOrder[monitorConfig.ke+''+monitorId];
             x = saved.x;
             y = saved.y;
@@ -303,7 +315,7 @@ function drawLiveGridBlock(monitorConfig,subStreamChannel){
             x,
             y,
             h: isSmallMobile ? 1 :  height,
-            w: isSmallMobile ? 4 :  width,// !monitorOrderEngaged
+            w: isSmallMobile ? 4 :  width,
             content: html
         });
         if(isMobile)liveGridData.disable();
@@ -642,6 +654,14 @@ function closeLiveGridPlayer(monitorId,killElement){
         console.log(err)
     }
 }
+function monitorWatchOnLiveGrid(monitorId, watchOff){
+    return mainSocket.f({f:'monitor',ff:watchOff ? 'watch_off' : 'watch_on',id: monitorId})
+}
+function monitorsWatchOnLiveGrid(monitorIds, watchOff){
+    monitorIds.forEach((monitorId) => {
+        monitorWatchOnLiveGrid(monitorId, watchOff)
+    })
+}
 function callMonitorToLiveGrid(v){
     var watchedOn = dashboardOptions().watch_on || {}
     if(watchedOn[v.ke] && watchedOn[v.ke][v.mid] === 1 && loadedMonitors[v.mid] && loadedMonitors[v.mid].mode !== 'stop'){
@@ -668,14 +688,16 @@ function loadPreviouslyOpenedLiveGridBlocks(){
 }
 function closeAllLiveGridPlayers(rememberClose){
     $.each(loadedMonitors,function(monitorId,monitor){
-        mainSocket.f({
-            f: 'monitor',
-            ff: 'watch_off',
-            id: monitor.mid
-        })
-        setTimeout(function(){
-            saveLiveGridBlockOpenState(monitorId,$user.ke,0)
-        },1000)
+        if(loadedLiveGrids[monitorId]){
+            mainSocket.f({
+                f: 'monitor',
+                ff: 'watch_off',
+                id: monitor.mid
+            })
+            setTimeout(function(){
+                saveLiveGridBlockOpenState(monitorId,$user.ke,0)
+            },1000)
+        }
     })
 }
 function saveLiveGridBlockOpenState(monitorId,groupKey,state){
@@ -1155,13 +1177,15 @@ $(document).ready(function(e){
                 var monitorId = d.mid || d.id
                 var loadedMonitor = loadedMonitors[monitorId]
                 var subStreamChannel = d.subStreamChannel
+                var monitorsPerRow = cycleLiveOptions ? cycleLiveOptions.monitorsPerRow : null;
+                var monitorHeight = cycleLiveOptions ? cycleLiveOptions.monitorHeight : null;
                 if(!loadedMonitor.subStreamChannel && loadedMonitor.details.stream_type === 'useSubstream'){
                     toggleSubStream(monitorId,function(){
-                        drawLiveGridBlock(loadedMonitors[monitorId],subStreamChannel)
+                        drawLiveGridBlock(loadedMonitors[monitorId],subStreamChannel,monitorsPerRow,monitorHeight)
                         saveLiveGridBlockOpenState(monitorId,$user.ke,1)
                     })
                 }else{
-                    drawLiveGridBlock(loadedMonitors[monitorId],subStreamChannel)
+                    drawLiveGridBlock(loadedMonitors[monitorId],subStreamChannel,monitorsPerRow,monitorHeight)
                     saveLiveGridBlockOpenState(monitorId,$user.ke,1)
                 }
             break;

@@ -4869,6 +4869,37 @@ module.exports = function(s,config,lang){
                 "color": "forestgreen",
                 "info": []
              },
+             "Live Grid": {
+                "name": lang['Live Grid'],
+                "color": "navy",
+                "info": [
+                    {
+                        "field": lang['Monitors per row'],
+                        "placeholder": "3",
+                        attribute:'localStorage="montage"',
+                    },
+                    {
+                        "field": lang['Cycle Monitors per row'],
+                        "placeholder": "2",
+                        attribute:'localStorage="cycleLivePerRow"',
+                    },
+                    {
+                        "field": lang['Number of Cycle Monitors'],
+                        "placeholder": "4",
+                        attribute:'localStorage="cycleLiveNumberOfMonitors"',
+                    },
+                    {
+                        "field": lang['Cycle Monitor Height'],
+                        "placeholder": "4",
+                        attribute:'localStorage="cycleLiveMonitorHeight"',
+                    },
+                    {
+                        "field": lang['Cycle Interval'],
+                        "placeholder": "30000",
+                        attribute:'localStorage="cycleLiveTimerAmount"',
+                    },
+                ]
+            },
              "Preferences": {
                 "name": lang.Preferences,
                 "color": "navy",
@@ -4913,15 +4944,6 @@ module.exports = function(s,config,lang){
                              "value": "1"
                           }
                       ]
-                  },
-                  {
-                      "field": lang['Monitors per row'],
-                      "placeholder": "3",
-                      attribute:'localStorage="montage"',
-                      "description": "",
-                      "default": "",
-                      "example": "",
-                      "possible": ""
                   },
                   {
                       "field": lang['Browser Console Log'],
@@ -4969,7 +4991,7 @@ module.exports = function(s,config,lang){
                       "possible": s.listOfThemes
                   },
                 ]
-             }
+            },
           }
       },
        "ONVIF Device Manager": {
@@ -7635,6 +7657,12 @@ module.exports = function(s,config,lang){
                                   label: lang['Mute Audio'],
                                   class: 'cursor-pointer',
                                   attributes: 'shinobi-switch="monitorMuteAudio" ui-change-target=".dot" on-class="dot-green" off-class="dot-grey"',
+                                  color: 'grey',
+                              },
+                              {
+                                  label: lang['Cycle Monitors'],
+                                  class: 'cursor-pointer',
+                                  attributes: 'shinobi-switch="cycleLiveGrid" ui-change-target=".dot" on-class="dot-green" off-class="dot-grey"',
                                   color: 'grey',
                               },
                               {

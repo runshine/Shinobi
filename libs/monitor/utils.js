@@ -1122,28 +1122,33 @@ module.exports = (s,config,lang) => {
         }
         if(e.details.record_timelapse === '1'){
             var timelapseRecordingDirectory = s.getTimelapseFrameDirectory(e)
-            activeMonitor.spawn.stdio[7].on('data', async function(data){
-                var fileStream = activeMonitor.recordTimelapseWriter
-                if(!fileStream){
-                    var currentDate = s.formattedTime(null,'YYYY-MM-DD')
-                    var filename = s.formattedTime() + '.jpg'
-                    var location = timelapseRecordingDirectory + currentDate + '/'
-                    if(!fs.existsSync(location)){
-                        fs.mkdirSync(location)
+            activeMonitor.spawn.stdio[7].on('data', function(data){
+                try{
+                    var fileStream = activeMonitor.recordTimelapseWriter
+                    if(!fileStream){
+                        var currentDate = s.formattedTime(null,'YYYY-MM-DD')
+                        var filename = s.formattedTime() + '.jpg'
+                        var location = timelapseRecordingDirectory + currentDate + '/'
+                        if(!fs.existsSync(location)){
+                            fs.mkdirSync(location)
+                        }
+                        fileStream = fs.createWriteStream(location + filename)
+                        fileStream.on('error', err => s.debugLog(err))
+                        fileStream.on('close', function () {
+                            activeMonitor.recordTimelapseWriter = null
+                            s.createTimelapseFrameAndInsert(e,location,filename)
+                            resetTimelapseFramesCheck(e)
+                        })
+                        activeMonitor.recordTimelapseWriter = fileStream
                     }
-                    fileStream = fs.createWriteStream(location + filename)
-                    fileStream.on('close', function () {
-                        activeMonitor.recordTimelapseWriter = null
-                        s.createTimelapseFrameAndInsert(e,location,filename)
-                        resetTimelapseFramesCheck(e)
-                    })
-                    activeMonitor.recordTimelapseWriter = fileStream
+                    fileStream.write(data)
+                    clearTimeout(activeMonitor.recordTimelapseWriterTimeout)
+                    activeMonitor.recordTimelapseWriterTimeout = setTimeout(function(){
+                        fileStream.end()
+                    },900)
+                }catch(err){
+                    s.debugLog(err)
                 }
-                fileStream.write(data)
-                clearTimeout(activeMonitor.recordTimelapseWriterTimeout)
-                activeMonitor.recordTimelapseWriterTimeout = setTimeout(function(){
-                    fileStream.end()
-                },900)
             })
         }
         if(e.details.detector === '1'){

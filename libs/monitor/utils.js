@@ -980,7 +980,7 @@ module.exports = (s,config,lang) => {
                     }
                 })
             }
-        }, (1000 * creationInterval) + 10000);
+        }, 1000 * creationInterval * 2);
     }
     function onDetectorJpegOutputAlone(e,d){
         if(s.isAtleatOneDetectorPluginConnected){

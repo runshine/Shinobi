@@ -122,7 +122,7 @@ $(document).ready(function(e){
             }
         })
     }
-    var initiateRegionList = function(){
+    var initiateRegionList = function(presetVal){
         regionEditorRegionsList.empty()
         regionEditorRegionsPoints.empty()
         $.each(regionViewerDetails.cords,function(regionId,region){
@@ -130,6 +130,7 @@ $(document).ready(function(e){
                 regionEditorRegionsList.append('<option value="' + regionId + '">' + region.name + '</option>')
             }
         });
+        if(presetVal)regionEditorRegionsList.val(presetVal);
         regionEditorRegionsList.change();
     }
     function displayGridOverCanvas(isOn,tileSize){
@@ -243,12 +244,23 @@ $(document).ready(function(e){
     })
     accuracyModeToggle.change(setGridDisplayBasedOnFields)
     tileSizeField.change(setGridDisplayBasedOnFields)
-    regionEditorWindow.on('change','[name]',function(){
+    regionEditorWindow.find('[name]').change(function(){
         var currentRegionId = getCurrentlySelectedRegionId()
         var el = $(this)
         var val = el.val()
         var key = el.attr('name')
-        regionViewerDetails.cords[currentRegionId][key] = val
+        switch(key){
+            case'name':
+                var newRegion = Object.assign({},regionViewerDetails.cords[currentRegionId])
+                newRegion.name = val
+                regionViewerDetails.cords[val] = newRegion
+                delete(regionViewerDetails.cords[currentRegionId])
+                initiateRegionList(val)
+            break;
+            default:
+                regionViewerDetails.cords[currentRegionId][key] = val
+            break;
+        }
     })
     regionEditorWindow.on('change','[point]',function(e){
         var currentRegionId = getCurrentlySelectedRegionId()

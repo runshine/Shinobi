@@ -33,6 +33,16 @@
           include fieldBuilders.ejs
         %>
         <% drawBlock(define.SideMenu.blocks.SideMenuBeforeList) %>
+        <div tab-specific-content="liveGrid" style="display:none">
+            <div class="form-group px-3">
+                <div class="dropdown">
+                 <a class="btn btn-sm btn-block btn-default dropdown-toggle" href="#" role="button" id="monitor-group-selections-opener" data-bs-toggle="dropdown" aria-expanded="false">
+                   <%- lang['Monitor Groups'] %>
+                 </a>
+                 <ul class="dropdown-menu <%- `${define.Theme.isDark ? 'dropdown-menu-dark bg-dark' : ''}` %> shadow-lg" aria-labelledby="monitor-group-selections-opener" id="monitor-group-selections"></ul>
+               </div>
+            </div>
+        </div>
         <div id="side-menu-collapse-point" class="collapse show home-collapse">
               <ul id="pageTabLinks" class="nav flex-column nav-pills">
                   <div class="pb-2 px-3" id="home-collapse">
@@ -61,16 +71,6 @@
                   </div>
                   <div id="createdTabLinks" class="pb-3 px-3 hidden-empty"></div>
               </ul>
-          </div>
-          <div tab-specific-content="liveGrid" style="display:none">
-              <div class="form-group px-3">
-                  <div class="dropdown">
-                   <a class="btn btn-sm btn-block btn-default dropdown-toggle" href="#" role="button" id="monitor-group-selections-opener" data-bs-toggle="dropdown" aria-expanded="false">
-                     <%- lang['Monitor Groups'] %>
-                   </a>
-                   <ul class="dropdown-menu <%- `${define.Theme.isDark ? 'dropdown-menu-dark bg-dark' : ''}` %> shadow-lg" aria-labelledby="monitor-group-selections-opener" id="monitor-group-selections"></ul>
-                 </div>
-              </div>
           </div>
           <% drawBlock(define.SideMenu.blocks.SideMenuAfterList) %>
           <% if(showMonitors){ %>

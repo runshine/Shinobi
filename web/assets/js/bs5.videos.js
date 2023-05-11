@@ -109,85 +109,45 @@ function applyTimelapseFramesListToVideos(videos,events,keyName,reverseList){
     })
     return newVideos
 }
-function getFrameOnVideoRow(percentageInward,video){
-    var startTime = video.time
-    var endTime = video.end
-    var timeDifference = endTime - startTime
-    var timeInward = timeDifference / (100 / percentageInward)
-    var timeAdded = new Date(startTime.getTime() + timeInward) // ms
-    var frames = video.timelapseFrames || []
-    var foundFrame = frames.length === 1 ? frames[0] : frames.find(function(row){
-        return new Date(row.time) >= timeAdded
+function getFrameOnVideoRow(percentageInward, video) {
+    var startTime = video.time;
+    var endTime = video.end;
+    var timeDifference = endTime - startTime;
+    var timeInward = timeDifference / (100 / percentageInward);
+    var timeAdded = new Date(startTime.getTime() + timeInward); // ms
+    var frames = video.timelapseFrames || [];
+
+    if (frames.length === 1) {
+        return {
+            timeInward: timeInward,
+            foundFrame: frames[0],
+            timeAdded: timeAdded,
+        };
+    }
+
+    var closestFrame = frames.reduce(function(prev, curr) {
+        var prevDiff = Math.abs(timeAdded - new Date(prev.time));
+        var currDiff = Math.abs(timeAdded - new Date(curr.time));
+        return (prevDiff < currDiff) ? prev : curr;
     });
+
     return {
         timeInward: timeInward,
-        foundFrame: foundFrame,
+        foundFrame: closestFrame,
         timeAdded: timeAdded,
-    }
+    };
 }
-function getVideoFromDay(percentageInward,reversedVideos,startTime,endTime){
-    var timeDifference = endTime - startTime
-    var timeInward = timeDifference / (100 / percentageInward)
-    var timeAdded = new Date(startTime.getTime() + timeInward) // ms
-    var foundVideoIndex = reversedVideos.findIndex(function(row){
-        return new Date(timeAdded) >= new Date(row.time)
+function getVideoFromDay(percentageInward, reversedVideos, startTime, endTime) {
+    var timeDifference = endTime - startTime;
+    var timeInward = timeDifference / (100 / percentageInward);
+    var timeAdded = new Date(startTime.getTime() + timeInward); // ms
+    var closestVideo = reversedVideos.reduce(function (prev, curr) {
+        var prevDiff = Math.abs(timeAdded - new Date(prev.time));
+        var currDiff = Math.abs(timeAdded - new Date(curr.time));
+        return (prevDiff < currDiff) ? prev : curr;
     });
-    var foundVideo = reversedVideos[foundVideoIndex - 1] || reversedVideos[foundVideoIndex] || reversedVideos[0]
-    return foundVideo
+    return closestVideo;
 }
-// function bindFrameFindingByMouseMove(createdCardCarrier,video){
-//     var createdCardElement = createdCardCarrier.find('.video-time-card').first()
-//     var timeImg = createdCardElement.find('.video-time-img')
-//     var timeStrip = createdCardElement.find('.video-time-strip')
-//     var timeNeedleSeeker = createdCardElement.find('.video-time-needle-seeker')
-//     if(video.timelapseFrames.length > 0){
-//         createdCardElement.on('mousemove',function(evt){
-//             var offest = createdCardElement.offset()
-//             var elementWidth = createdCardElement.width() + 2
-//             var amountMoved = evt.pageX - offest.left
-//             var percentMoved = amountMoved / elementWidth * 100
-//             percentMoved = percentMoved > 100 ? 100 : percentMoved < 0 ? 0 : percentMoved
-//             var frameFound = getFrameOnVideoRow(percentMoved,video).frameFound
-//             if(frameFound){
-//                 timeImg.css('background-image',`url(${frameFound.href})`)
-//             }
-//             timeNeedleSeeker.css('left',`${amountMoved}px`)
-//         })
-//         timeImg.css('background-image',`url(${getFrameOnVideoRow(1,video).frameFound.href})`)
-//     }else{
-//         if(video.events.length === 0){
-//             timeStrip.hide()
-//         }else{
-//             var eventMatrixHtml = ``
-//             var objectsFound = {}
-//             eventMatrixHtml += `
-//                     <table class="table table-striped mb-0">
-//                     <tr>
-//                       <th scope="col" class="${definitions.Theme.isDark ? 'text-white' : ''} text-epic">${lang.Events}</th>
-//                       <th scope="col" class="text-end"><span class="badge bg-light text-dark rounded-pill">${video.events.length}</span></th>
-//                     </tr>`
-//                 $.each(([]).concat(video.events).splice(0,11),function(n,theEvent){
-//                     var imagePath = `${formattedTimeForFilename(theEvent.time,false,'YYYY-MM-DD')}/${formattedTimeForFilename(theEvent.time,false,'YYYY-MM-DDTHH-mm-ss')}.jpg`
-//                     possibleEventFrames += `<div class="col-4 mb-2"><img class="rounded pop-image cursor-pointer" style="max-width:100%;" src="${getApiPrefix('timelapse')}/${theEvent.mid}/${imagePath}" onerror="$(this).parent().remove()"></div>`
-//                 })
-//                 $.each(video.events,function(n,theEvent){
-//                     $.each(theEvent.details.matrices,function(n,matrix){
-//                         if(!objectsFound[matrix.tag])objectsFound[matrix.tag] = 1
-//                         ++objectsFound[matrix.tag]
-//                     })
-//                 })
-//                 $.each(objectsFound,function(tag,count){
-//                     eventMatrixHtml += `<tr>
-//                         <td class="${definitions.Theme.isDark ? 'text-white' : ''}" style="text-transform:capitalize">${tag}</td>
-//                         <td class="text-end"><span class="badge badge-dark text-white rounded-pill">${count}</span></td>
-//                     </tr>`
-//                 })
-//                 eventMatrixHtml += `</table>`
-//                 timeStrip.append(eventMatrixHtml)
-//         }
-//         timeImg.remove()
-//     }
-// }
 function bindFrameFindingByMouseMoveForDay(createdCardCarrier,dayKey,videos,allFrames){
     var stripTimes = getStripStartAndEnd(videos,allFrames)
     var dayStart = stripTimes.start
@@ -214,22 +174,15 @@ function bindFrameFindingByMouseMoveForDay(createdCardCarrier,dayKey,videos,allF
     var currentlySelected = videos[0]
     var currentlySelectedFrame = null
     var reversedVideos = ([]).concat(videos).reverse();
-    createdCardElement.on('mousemove',function(evt){
+    function onSeek(evt, isTouch){
         var offest = createdCardElement.offset()
         var elementWidth = createdCardElement.width() + 2
-        var amountMoved = evt.pageX - offest.left
+        var amountMoved = (isTouch ? evt.originalEvent.touches[0] : evt).pageX - offest.left
         var percentMoved = amountMoved / elementWidth * 100
         percentMoved = percentMoved > 100 ? 100 : percentMoved < 0 ? 0 : percentMoved
         var videoFound = videos[0] ? getVideoFromDay(percentMoved,reversedVideos,dayStart,dayEnd) : null
         createdCardElement.find(`[data-time]`).css('background-color','')
         if(videoFound){
-            // var videoSlice = createdCardElement.find(`[data-time="${videoFound.time}"]`).css('background-color','rgba(255,255,255,0.3)')
-            // var videoSliceOffest = videoSlice.offset()
-            // var videoSliceElementWidth = videoSlice.width()
-            // var videoSliceAmountMoved = evt.pageX - videoSliceOffest.left
-            // var videoSlicePercentMoved = videoSliceAmountMoved / videoSliceElementWidth * 100
-            // videoSlicePercentMoved = videoSlicePercentMoved > 100 ? 100 : videoSlicePercentMoved < 0 ? 0 : videoSlicePercentMoved
-
             if(currentlySelected && currentlySelected.time !== videoFound.time){
                 timeNeedleSeeker.attr('video-time-seeked-video-position',videoFound.time)
             }
@@ -251,6 +204,12 @@ function bindFrameFindingByMouseMoveForDay(createdCardCarrier,dayKey,videos,allF
             },1)
         }
         timeNeedleSeeker.attr('video-slice-seeked',result.timeInward).css('left',`${percentMoved}%`)
+    }
+    createdCardElement.on('mousemove',function(evt){
+        onSeek(evt, false)
+    })
+    createdCardElement.on('touchmove',function(evt){
+        onSeek(evt, true)
     })
 }
 function getPercentOfTimePositionFromVideo(video,theEvent){
@@ -424,7 +383,7 @@ function createDayCard(videos,frames,dayKey,monitorId,classOverride){
             </div>
             <div class="video-time-strip card-footer p-0">
                 <div class="flex-row d-flex" style="height:30px">${eventMatrixHtml}</div>
-                <div class="video-time-needle video-time-needle-seeker" ${firstVideoTime ? `video-time-seeked-video-position="${firstVideoTime}"` : ''} data-mid="${monitorId}" style="z-index: 2"></div>
+                <div class="video-time-needle video-time-needle-seeker" ${firstVideoTime ? `video-time-seeked-video-position="${firstVideoTime}"` : ''} data-mid="${monitorId}"></div>
             </div>
         </div>
     </div>`

@@ -40,7 +40,7 @@
     background-position: center;
     height: 400px;
     min-height: 400px;
-    background-repeat: no-repeat;
+    max-width: 100%;
 }
 
 /* @media screen and (max-width: 992px) {
@@ -74,13 +74,16 @@
     border-left: 3px solid #fffb00;
     border-radius: 0;
     z-index: 999;
+    opacity: 0.3;
 }
 .video-time-needle-seeker {
     border-left: 3px solid #f00;
+    z-index: 1000;
 }
 .video-day-slice {
     height: 100%;
     background: #1f80f9;
+    border-right: 1px inset #224979;
 }
 .video-day-slice-spacer {
     background: rgba(0,0,0,0.3);

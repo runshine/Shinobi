@@ -11,6 +11,7 @@ const P = SAT.Polygon;
 const B = SAT.Box;
 // Matrix In Region Libs />
 module.exports = (s,config,lang) => {
+    const motionFrameSaveTimeouts = {}
     // Event Filters >
     const acceptableOperators = ['indexOf','!indexOf','===','!==','>=','>','<','<=']
     // Event Filters />
@@ -375,8 +376,11 @@ module.exports = (s,config,lang) => {
     }
     const runEventExecutions = async (eventTime,monitorConfig,eventDetails,forceSave,filter,d, triggerEvent) => {
         const groupKey = monitorConfig.ke
+        const monitorId = d.id || d.mid
         const monitorDetails = monitorConfig.details
         const detailString = JSON.stringify(eventDetails)
+        const reason = eventDetails.reason
+        const timeoutId = `${groupKey}${monitorId}`
         if(monitorDetails.detector_ptz_follow === '1'){
             moveCameraPtzToMatrix(d,monitorDetails.detector_ptz_follow_target)
         }
@@ -388,19 +392,41 @@ module.exports = (s,config,lang) => {
         //save this detection result in SQL, only coords. not image.
         if(d.frame){
             saveImageFromEvent({
-                ke: d.ke,
-                mid: d.id,
+                ke: groupKey,
+                mid: monitorId,
                 time: eventTime,
                 matrices: eventDetails.matrices || [],
             },d.frame)
+        }else if(
+            !motionFrameSaveTimeouts[timeoutId] &&
+            reason === 'motion' &&
+            monitorDetails.detector_motion_save_frame === '1' &&
+            (
+              monitorDetails.detector_use_detect_object !== '1' ||
+              (monitorDetails.detector_use_detect_object === '1' && monitorDetails.detector_use_motion !== '1')
+            )
+        ){
+            motionFrameSaveTimeouts[timeoutId] = setTimeout(() => {
+                delete(motionFrameSaveTimeouts[timeoutId])
+            },10000);
+            s.getRawSnapshotFromMonitor(monitorConfig,{
+                secondsInward: parseInt(monitorConfig.details.detector_buffer_seconds_before) || 5
+            }).then(({ screenShot, isStaticFile }) => {
+                saveImageFromEvent({
+                    ke: groupKey,
+                    mid: monitorId,
+                    time: eventTime,
+                    matrices: eventDetails.matrices || [],
+                }, screenShot)
+            })
         }
         if(forceSave || (filter.save || monitorDetails.detector_save === '1')){
             s.knexQuery({
                 action: "insert",
                 table: "Events",
                 insert: {
-                    ke: d.ke,
-                    mid: d.id,
+                    ke: groupKey,
+                    mid: monitorId,
                     details: detailString,
                     time: s.formattedTime(eventTime),
                 }
@@ -438,10 +464,12 @@ module.exports = (s,config,lang) => {
         }
 
         if(
-            filter.command ||
-            (monitorDetails.detector_command_enable === '1' && !s.group[d.ke].activeMonitors[d.id].detector_command)
+            filter.command || (
+                monitorDetails.detector_command_enable === '1' &&
+                !s.group[d.ke].activeMonitors[monitorId].detector_command
+            )
         ){
-            s.group[d.ke].activeMonitors[d.id].detector_command = s.createTimeout('detector_command',s.group[d.ke].activeMonitors[d.id],monitorDetails.detector_command_timeout,10)
+            s.group[d.ke].activeMonitors[monitorId].detector_command = s.createTimeout('detector_command',s.group[d.ke].activeMonitors[monitorId],monitorDetails.detector_command_timeout,10)
             var detector_command = addEventDetailsToString(d,monitorDetails.detector_command)
             if(detector_command === '')return
             exec(detector_command,{detached: true},function(err){

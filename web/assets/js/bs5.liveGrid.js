@@ -963,6 +963,30 @@ function openAllLiveGridPlayers(){
         openLiveGrid()
     })
 }
+function addMarkAsEvent(monitorId){
+    runTestDetectionTrigger(monitorId,{
+        "name":"Marker",
+        "reason":"marker",
+        "matrices": [
+            {
+                x: 0,
+                y: 0,
+                width: 1,
+                height: 1,
+                tag: 'Marked',
+                confidence: 100,
+            }
+        ]
+    });
+}
+function addMarkAsEventToAllOpenMonitors(){
+    $.each(loadedMonitors,function(n,monitor){
+        var monitorId = monitor.mid
+        if(liveGridPlayingNow[monitorId]){
+            addMarkAsEvent(monitorId)
+        }
+    })
+}
 $(document).ready(function(e){
     liveGrid
     .on('dblclick','.stream-block',function(){
@@ -976,15 +1000,14 @@ $(document).ready(function(e){
     .on('click','.launch-live-grid-monitor',function(){
         var monitorId = $(this).parents('[data-mid]').attr('data-mid')
         if(isMobile){
-            createLivePlayerTab(loadedMonitors[monitorId])
-        }else{
-            mainSocket.f({
-                f: 'monitor',
-                ff: 'watch_on',
-                id: monitorId
-            })
-            openLiveGrid()
+            closeAllLiveGridPlayers()
         }
+        mainSocket.f({
+            f: 'monitor',
+            ff: 'watch_on',
+            id: monitorId
+        })
+        openLiveGrid()
     })
     .on('click','.monitor-live-group-open',function(){
         var monitorIds = $(this).attr('monitor-ids').split(',')
@@ -1085,6 +1108,11 @@ $(document).ready(function(e){
         var el = $(this)
         var monitorId = el.parents('[data-mid]').attr('data-mid')
         runTestDetectionTrigger(monitorId)
+    })
+    .on('click','.run-monitor-detection-trigger-marker',function(){
+        var el = $(this)
+        var monitorId = el.parents('[data-mid]').attr('data-mid')
+        addMarkAsEvent(monitorId)
     })
     .on('click','.run-monitor-detection-trigger-test-motion',function(){
         var el = $(this)
@@ -1244,7 +1272,7 @@ $(document).ready(function(e){
                     }
                     playAudioAlert()
                     var monitorPop = monitorPops[monitorId]
-                    if($user.details.event_mon_pop === '1' && (!monitorPop || monitorPop.closed === true)){
+                    if(window.popLiveOnEvent && (!monitorPop || monitorPop.closed === true)){
                         popOutMonitor(monitorId)
                     }
                     // console.log({
@@ -1292,12 +1320,28 @@ $(document).ready(function(e){
             window.dontShowDetection = true
         }
     }
+    dashboardSwitchCallbacks.alertOnEvent = function(toggleState){
+        // audio_alert
+        if(toggleState !== 1){
+            window.audioAlertOnEvent = false
+        }else{
+            window.audioAlertOnEvent = true
+        }
+    }
+    dashboardSwitchCallbacks.popOnEvent = function(toggleState){
+        if($user.details.event_mon_pop === '1'){
+            window.popLiveOnEvent = true
+        }else if(toggleState !== 1){
+            window.popLiveOnEvent = false
+        }else{
+            window.popLiveOnEvent = true
+        }
+    }
     dashboardSwitchCallbacks.monitorMuteAudio = function(toggleState){
         var monitorMutes = dashboardOptions().monitorMutes || {}
         $('.monitor_item video').each(function(n,vidEl){
             var el = $(this)
             var monitorId = el.parents('[data-mid]').attr('data-mid')
-            console.log(monitorId,monitorMutes[monitorId])
             if(toggleState === 1){
                 vidEl.muted = true
             }else{

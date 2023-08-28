@@ -72,7 +72,6 @@ module.exports = function(s,config,lang,io){
             'home/timelapseViewer',
             'home/eventFilters',
             'home/cameraProbe',
-            'home/powerVideo',
             'home/onvifScanner',
             'home/onvifDeviceManager',
             'home/configFinder',
@@ -82,6 +81,8 @@ module.exports = function(s,config,lang,io){
             'home/fileBin',
             'home/videosTable',
             'home/studio',
+            'home/monitorMap',
+            'home/timeline',
             'confirm',
             'home/help',
         ]

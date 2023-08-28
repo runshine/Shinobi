@@ -35,6 +35,7 @@ module.exports = (s,config,lang) => {
         isEven,
         fetchTimeout,
     } = require('../basic/utils.js')(process.cwd(),config)
+    const glyphs = require('../../definitions/glyphs.js')
     async function saveImageFromEvent(options,frameBuffer){
         const monitorId = options.mid || options.id
         const groupKey = options.ke
@@ -351,7 +352,7 @@ module.exports = (s,config,lang) => {
     function bindTagLegendForMonitors(groupKey){
         const newTagLegend = {}
         const theGroup = s.group[groupKey]
-        const monitorIds = Object.keys(theGroup.rawMonitorConfigurations)
+        const monitorIds = Object.keys(theGroup.rawMonitorConfigurations || {})
         monitorIds.forEach((monitorId) => {
             const monitorConfig = theGroup.rawMonitorConfigurations[monitorId]
             const theTags = (monitorConfig.tags || '').split(',')
@@ -546,8 +547,12 @@ module.exports = (s,config,lang) => {
             clearTimeout(activeMonitor.eventBasedRecording.timeout)
             activeMonitor.eventBasedRecording.timeout = setTimeout(function(){
                 activeMonitor.eventBasedRecording.allowEnd = true
-                activeMonitor.eventBasedRecording.process.stdin.setEncoding('utf8')
-                activeMonitor.eventBasedRecording.process.stdin.write('q')
+                try{
+                    activeMonitor.eventBasedRecording.process.stdin.setEncoding('utf8')
+                    activeMonitor.eventBasedRecording.process.stdin.write('q')
+                }catch(err){
+                    s.debugLog(err)
+                }
                 activeMonitor.eventBasedRecording.process.kill('SIGINT')
                 delete(activeMonitor.eventBasedRecording.timeout)
             },detector_timeout * 1000 * 60)
@@ -824,7 +829,27 @@ module.exports = (s,config,lang) => {
 
       return newRegions;
     }
+    function getTagWithIcon(tag){
+        var icon = glyphs[tag.toLowerCase()] || glyphs._default
+        return `${icon} ${tag}`;
+    }
+    function getObjectTagsFromMatrices(d){
+        if(d.details.reason === 'motion'){
+            return [getTagWithIcon(lang.Motion)]
+        }else{
+            const matrices = d.details.matrices
+            return [...new Set(matrices.map(matrix => getTagWithIcon(matrix.tag)))];
+        }
+    }
+    function getObjectTagNotifyText(d){
+        const monitorId = d.mid || d.id
+        const monitorName = s.group[d.ke].rawMonitorConfigurations[monitorId].name
+        const tags = getObjectTagsFromMatrices(d)
+        return `${tags.join(', ')} ${lang.detected} in ${monitorName}`
+    }
     return {
+        getObjectTagNotifyText,
+        getObjectTagsFromMatrices,
         countObjects: countObjects,
         isAtleastOneMatrixInRegion,
         convertRegionPointsToNewDimensions,

@@ -24,7 +24,7 @@ module.exports = function(s,config,lang){
           "blocks": {
               "Page Control": {
                  name: lang.Monitor,
-                 headerTitle: `<div id="tab-monitorSettings-title">Monitor Settings : <span>Add New</span></div>`,
+                 headerTitle: `<div id="tab-monitorSettings-title">${lang['Monitor Settings']} : <span>Add New</span></div>`,
                 "color": "blue",
                  isSection: false,
                 "info": [
@@ -140,7 +140,34 @@ module.exports = function(s,config,lang){
                             "value": "1"
                          }
                      ]
-                  }
+                 },
+                 {
+                    "name": "detail=geolocation",
+                    "field": lang["Geolocation"],
+                    "example": "49.2578298,-123.2634732",
+                    "description": lang["fieldTextGeolocation"],
+                 },
+                 {
+                     "id": "monitor-settings-monitor-map-container",
+                     "style": "position: relative",
+                     "fieldType": "div",
+                     divContent: `
+                     <div id="monitor-settings-geolocation-options" class="p-2" style="background: rgba(0,0,0,0.4);position: absolute; top: 0; right: 0; border-radius: 0 0 0 15px; z-index: 405;">
+                         <label for="direction">${lang.Direction} <span class="badge" map-option-value="direction"></span></label>
+                         <div class="slider-container">
+                             <input type="range" map-option="direction" class="slider" min="0" max="360" value="90">
+                         </div>
+                         <label for="fov">${lang['Field of View']} <span class="badge"><span map-option-value="fov"></span>°</span></label>
+                         <div class="slider-container">
+                             <input type="range" map-option="fov" class="slider" min="0" max="180" value="60">
+                         </div>
+                         <label for="range">${lang.Range} <span class="badge"><span map-option-value="range"></span> km</span></label>
+                         <div class="slider-container">
+                             <input type="range" map-option="range" class="slider" min="0" max="10" value="1" step="0.1">
+                         </div>
+                     </div>
+                     <div id="monitor-settings-monitor-map" style="width: 100%;height: 300px;border-radius:15px;"></div>`,
+                 },
                 ]
              },
              "Connection": {
@@ -436,25 +463,6 @@ module.exports = function(s,config,lang){
                        "default": "0",
                        "example": "",
                        "selector": "h_onvif",
-                       "fieldType": "select",
-                       "possible": [
-                           {
-                              "name": lang.No,
-                              "value": "0"
-                           },
-                           {
-                              "name": lang.Yes,
-                              "value": "1"
-                           }
-                       ]
-                    },
-                    {
-                       "name": "detail=onvif_non_standard",
-                       "field": lang['Non-Standard ONVIF'],
-                       "description": lang["fieldTextOnvifNonStandard"],
-                       "default": "0",
-                       "example": "",
-                       "form-group-class": "h_onvif_input h_onvif_1",
                        "fieldType": "select",
                        "possible": [
                            {
@@ -869,6 +877,10 @@ module.exports = function(s,config,lang){
                                  {
                                     "name": "H.264 NVENC (NVIDIA HW Accel)",
                                     "value": "h264_nvenc"
+                                 },
+                                 {
+                                    "name": "H.264 NVENC Jetson (NVIDIA HW Accel NVMPI)",
+                                    "value": "h264_nvmpi"
                                  },
                                  {
                                     "name": "H.265 NVENC (NVIDIA HW Accel)",
@@ -1649,6 +1661,10 @@ module.exports = function(s,config,lang){
                                             "value": "h264_nvenc"
                                          },
                                          {
+                                            "name": "H.264 NVENC Jetson (NVIDIA HW Accel NVMPI)",
+                                            "value": "h264_nvmpi"
+                                         },
+                                         {
                                             "name": "H.265 NVENC (NVIDIA HW Accel)",
                                             "value": "hevc_nvenc"
                                          },
@@ -2036,6 +2052,10 @@ module.exports = function(s,config,lang){
                                  {
                                     "name": "H.264 NVENC (NVIDIA HW Accel)",
                                     "value": "h264_nvenc"
+                                 },
+                                 {
+                                    "name": "H.264 NVENC Jetson (NVIDIA HW Accel NVMPI)",
+                                    "value": "h264_nvmpi"
                                  },
                                  {
                                     "name": "H.265 NVENC (NVIDIA HW Accel)",
@@ -3768,12 +3788,32 @@ module.exports = function(s,config,lang){
                         ]
                     },
                     {
+                       "name": "detail=onvif_non_standard",
+                       "field": lang['ONVIF Home Control'],
+                       "description": lang.fieldTextOnvifHomeControl,
+                       "default": "0",
+                       "form-group-class": "h_control_call_input h_control_call_ONVIF",
+                       "fieldType": "select",
+                       "possible": [
+                           {
+                              "name": lang.usingPreset1,
+                              "value": "0"
+                           },
+                           {
+                              "name": lang.usingPreset1HikvisionClone,
+                              "value": "1"
+                           },
+                           {
+                              "name": lang.usingHomePreset,
+                              "value": "2"
+                           }
+                       ]
+                    },
+                    {
                         isAdvanced: true,
                        "name": "detail=control_digest_auth",
                        "field": lang['Digest Authentication'],
-                       "description": "",
                        "default": "0",
-                       "example": "",
                        "fieldType": "select",
                        "form-group-class": "h_control_call_input h_control_call_GET h_control_call_PUT h_control_call_POST",
                        "possible": [
@@ -3784,6 +3824,27 @@ module.exports = function(s,config,lang){
                           {
                              "name": lang.Yes,
                              "value": "1"
+                          }
+                       ]
+                    },
+                    {
+                        isAdvanced: true,
+                       "name": "detail=control_axis_lock",
+                       "field": lang['Pan/Tilt Only'],
+                       "default": "",
+                       "fieldType": "select",
+                       "possible": [
+                          {
+                             "name": lang['Pan and Tilt'],
+                             "value": ""
+                          },
+                          {
+                             "name": lang['Pan Only'],
+                             "value": "1"
+                          },
+                          {
+                             "name": lang['Tilt Only'],
+                             "value": "2"
                           }
                        ]
                     },
@@ -6430,7 +6491,7 @@ module.exports = function(s,config,lang){
                 "info": [
                     {
                       "name": "actions=halt",
-                      "field": "Drop Event",
+                      "field": lang["Drop Event"],
                       "fieldType": "select",
                       "form-group-class": "actions-row",
                       "description": lang["fieldTextActionsHalt"],
@@ -6467,7 +6528,7 @@ module.exports = function(s,config,lang){
                     },
                     {
                        "name": "actions=indifference",
-                       "field": "Modify Indifference",
+                       "field": lang["Modify Indifference"],
                        "description": lang["fieldTextActionsIndifference"],
                        "form-group-class": "actions-row",
                     },
@@ -6492,7 +6553,7 @@ module.exports = function(s,config,lang){
                     },
                    {
                       "name": "actions=command",
-                      "field": "Detector Command",
+                      "field": lang["Detector Command"],
                       "fieldType": "select",
                       "form-group-class": "actions-row",
                       "description": lang["fieldTextActionsCommand"],
@@ -6512,7 +6573,7 @@ module.exports = function(s,config,lang){
                    },
                    {
                       "name": "actions=record",
-                      "field": "Use Record Method",
+                      "field": lang["Use Record Method"],
                       "fieldType": "select",
                       "description": lang["fieldTextActionsRecord"],
                       "default": "",
@@ -7216,6 +7277,10 @@ module.exports = function(s,config,lang){
                                       "value": "h264_nvenc"
                                    },
                                    {
+                                      "name": "H.264 NVENC Jetson (NVIDIA HW Accel NVMPI)",
+                                      "value": "h264_nvmpi"
+                                   },
+                                   {
                                       "name": "H.265 NVENC (NVIDIA HW Accel)",
                                       "value": "hevc_nvenc"
                                    },
@@ -7442,6 +7507,7 @@ module.exports = function(s,config,lang){
            streamBlockHudControlsHtml: `<span title="${lang['Currently viewing']}" class="label label-default">
                 <span class="viewers"></span>
            </span>
+           <span class="badge btn-success text-white substream-is-on" style="display:none">${lang['Substream']}</span>
            <a class="btn btn-sm badge btn-primary run-monitor-detection-trigger-marker">${lang['Add Marker']}</a>
            <a class="btn btn-sm badge btn-warning run-monitor-detection-trigger-test">${lang['Test Object Event']}</a>
            <a class="btn btn-sm badge btn-warning run-monitor-detection-trigger-test-motion">${lang['Test Motion Event']}</a>
@@ -7704,6 +7770,17 @@ module.exports = function(s,config,lang){
                           pageOpen: 'monitorsList',
                       },
                       {
+                          icon: 'barcode',
+                          label: `${lang['Timeline']}`,
+                          pageOpen: 'timeline',
+                          addUl: true,
+                      },
+                      {
+                          icon: 'map-marker',
+                          label: `${lang['Monitor Map']}`,
+                          pageOpen: 'monitorMap',
+                      },
+                      {
                           icon: 'film',
                           label: `${lang['Videos']}`,
                           pageOpen: 'videosTableView',
@@ -7716,11 +7793,6 @@ module.exports = function(s,config,lang){
                                   color: 'grey',
                               },
                           ]
-                      },
-                      {
-                          icon: 'map-marker',
-                          label: `${lang['Power Viewer']}`,
-                          pageOpen: 'powerVideo',
                       },
                       {
                           icon: 'calendar',
@@ -8877,146 +8949,130 @@ module.exports = function(s,config,lang){
                 "box-wrapper-class": "row",
                 "info": [
                     {
-                        title: "New to Shinobi?",
+                        title: lang["New to Shinobi?"],
                         info: `Try reading over some of these links to get yourself started.`,
                         buttons: [
                             {
                                 icon: 'newspaper-o',
                                 color: 'default',
-                                text: 'After Installation Guides',
-                                href: 'https://shinobi.video/docs/configure',
-                                class: ''
+                                text: lang.afterInstallationGuides,
+                                href: 'https://shinobi.video/docs/configure'
                             },
                             {
                                 icon: 'plus',
                                 color: 'default',
-                                text: 'Adding an H.264 Camera',
-                                href: 'https://shinobi.video/docs/configure#content-adding-an-h264h265-camera',
-                                class: ''
+                                text: lang.addingAnH264Camera,
+                                href: 'https://shinobi.video/docs/configure#content-adding-an-h264h265-camera'
                             },
                             {
                                 icon: 'plus',
                                 color: 'default',
-                                text: 'Adding an MJPEG Camera',
-                                href: 'https://shinobi.video/articles/2018-09-19-how-to-add-an-mjpeg-camera',
-                                class: ''
+                                text: lang.addingAnMJPEGCamera,
+                                href: 'https://shinobi.video/articles/2018-09-19-how-to-add-an-mjpeg-camera'
                             },
                             {
                                 icon: 'gears',
                                 color: 'default',
-                                text: 'RTSP Camera Optimization',
-                                href: 'https://shinobi.video/articles/2017-07-29-how-i-optimized-my-rtsp-camera',
-                                class: ''
+                                text: lang.rtspCameraOptimization,
+                                href: 'https://shinobi.video/articles/2017-07-29-how-i-optimized-my-rtsp-camera'
                             },
                             {
                                 icon: 'comments-o',
                                 color: 'info',
-                                text: 'Community Chat',
-                                href: 'https://discord.gg/ehRd8Zz',
-                                class: ''
+                                text: lang.communityChat,
+                                href: 'https://discord.gg/ehRd8Zz'
                             },
                             {
                                 icon: 'reddit',
                                 color: 'info',
-                                text: 'Forum on Reddit',
-                                href: 'https://www.reddit.com/r/ShinobiCCTV',
-                                class: ''
+                                text: lang.forumOnReddit,
+                                href: 'https://www.reddit.com/r/ShinobiCCTV'
                             },
                             {
                                 icon: 'file-o',
                                 color: 'primary',
-                                text: 'Documentation',
-                                href: 'http://shinobi.video/docs',
-                                class: ''
+                                text: lang.Documentation,
+                                href: 'http://shinobi.video/docs'
                             }
                         ]
                     },
                     {
                         bigIcon: "smile-o",
-                        title: "It's a proven fact",
-                        info: `Generosity makes you a happier person, please consider supporting the development.`,
+                        title: lang.itsAProvenFact,
+                        info: lang.generosityHappierPerson,
                         buttons: [
                             {
                                 icon: 'share-square-o',
                                 color: 'default',
-                                text: 'ShinobiShop Subscriptions',
-                                href: 'https://licenses.shinobi.video/subscribe',
-                                class: ''
+                                text: lang['ShinobiShop Subscriptions'],
+                                href: 'https://licenses.shinobi.video/subscribe'
                             },
                             {
                                 icon: 'paypal',
                                 color: 'default',
-                                text: 'Donate by PayPal',
-                                href: 'https://www.paypal.me/ShinobiCCTV',
-                                class: ''
+                                text: lang['Donate by PayPal'],
+                                href: 'https://www.paypal.me/ShinobiCCTV'
                             },
                             {
                                 icon: 'bank',
                                 color: 'default',
                                 text: 'University of Zurich (UZH)',
-                                href: 'https://www.zora.uzh.ch/id/eprint/139275/',
-                                class: ''
+                                href: 'https://www.zora.uzh.ch/id/eprint/139275/'
                             },
                         ]
                     },
                     {
-                        title: "Shinobi Mobile",
-                        info: `Your subscription key can unlock features for <a href="https://cdn.shinobi.video/installers/ShinobiMobile/" target="_blank"><b>Shinobi Mobile</b></a> running on iOS and Android today!`,
+                        title: lang["Shinobi Mobile"],
+                        info: lang.yourSubscriptionText,
                         buttons: [
                             {
                                 icon: 'star',
                                 color: 'success',
-                                text: 'Join Public Beta',
-                                href: 'https://shinobi.video/mobile',
-                                class: ''
+                                text: lang['Get the Mobile App'],
+                                href: 'https://shinobi.video/mobile'
                             },
                             {
                                 icon: 'comments-o',
                                 color: 'primary',
-                                text: '<b>#mobile-client</b> Chat',
-                                href: 'https://discord.gg/ehRd8Zz',
-                                class: ''
+                                text: lang['#mobile-client Chat'],
+                                href: 'https://discord.gg/ehRd8Zz'
                             },
                         ]
                     },
                     {
-                        title: "Support the Development",
-                        info: `Subscribe to any of the following to boost development! Once subscribed put your Subscription ID in at the Super user panel, then restart Shinobi to Activate your installation, thanks! <i class="fa fa-smile-o"></i>`,
+                        title: lang.activateShinobi,
+                        info: lang.howToActivate,
                         buttons: [
                             {
                                 icon: 'share-square-o',
                                 color: 'default',
                                 text: 'Shinobi Mobile License ($5/m)',
                                 href: 'https://licenses.shinobi.video/subscribe?planSubscribe=plan_G31AZ9mknNCa6z',
-                                class: ''
                             },
                             {
                                 icon: 'share-square-o',
                                 color: 'default',
                                 text: 'Tiny Support Subscription ($10/m)',
                                 href: 'https://licenses.shinobi.video/subscribe?planSubscribe=plan_G42jNgIqXaWmIC',
-                                class: ''
                             },
                             {
                                 icon: 'share-square-o',
                                 color: 'default',
-                                text: 'Shinobi Pro License ($75/m)',
+                                text: '100 Camera License ($75/m)',
                                 href: 'https://licenses.shinobi.video/subscribe?planSubscribe=plan_G3LGdNwA8lSmQy',
-                                class: ''
                             },
                         ]
                     },
                     {
-                        title: "Donations, One-Time Boost",
-                        info: `Sometimes a subscription isn't practical for people. In which case you may show support through a PayPal donation. And as a thank you for doing so your <b>PayPal Transaction ID</b> can be used as a <code>subscriptionId</code> in your Shinobi configuration file. <br><br>Each 5 USD/EUR or 7 CAD will provide one month of activated usage. <i>Meaning, a $20 USD donation today makes this popup go away (or activates the mobile app) for 4 months.</i>`,
+                        title: lang['Donations, One-Time Boost'],
+                        info: lang.donationOneTimeText,
                         width: 12,
                         buttons: [
                             {
                                 icon: 'paypal',
                                 color: 'default',
-                                text: 'Donate by PayPal',
-                                href: 'https://www.paypal.me/ShinobiCCTV',
-                                class: ''
+                                text: lang['Donate by PayPal'],
+                                href: 'https://www.paypal.me/ShinobiCCTV'
                             },
                         ]
                     },
@@ -9051,5 +9107,105 @@ module.exports = function(s,config,lang){
             },
         }
     },
+    "Monitor Map": {
+         "section": "Monitor Map",
+         "blocks": {
+             "Search Settings": {
+                "name": lang["Monitor Map"],
+                "color": "blue",
+                "noHeader": true,
+                "noDefaultSectionClasses": true,
+                "info": [
+                    {
+                        "fieldType": "div",
+                        "id": "monitor-map-canvas",
+                    }
+               ]
+           },
+        }
+      },
+      "Timeline": {
+           "section": "Timeline",
+           "blocks": {
+               "Search Settings": {
+                  "name": lang["Timeline"],
+                  "color": "blue",
+                  "noHeader": true,
+                  "noDefaultSectionClasses": true,
+                  "box-wrapper-class": "flex-direction-column",
+                  "info": [
+                      {
+                          "fieldType": "div",
+                          "class": "row m-0",
+                          "id": "timeline-video-canvas",
+                      },
+                      {
+                          "fieldType": "div",
+                          "class": "row p-1 m-0",
+                          "id": "timeline-info",
+                          "divContent": `
+                          <div class="text-center">
+                            <span class="current-time font-monospace ${textWhiteOnBgDark}"></span>
+                          </div>`
+                      },
+                      {
+                          "fieldType": "div",
+                          "class": "p-2",
+                          "id": "timeline-controls",
+                          "divContent": `
+                          <div class="text-center">
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-default" timeline-action="jumpPrev" title="${lang.jumptoPreviousVideo}"><i class="fa fa-angle-double-left"></i></a>
+                                  <a class="btn btn-sm btn-default" timeline-action="jumpLeft" title="${lang.jumpFiveSeconds}"><i class="fa fa-arrow-circle-left"></i></a>
+                                  <a class="btn btn-sm btn-primary" timeline-action="playpause" title="${lang.Play}/${lang.Pause}"><i class="fa fa-play-circle-o"></i></a>
+                                  <a class="btn btn-sm btn-default" timeline-action="jumpRight" title="${lang.jumpFiveSeconds}"><i class="fa fa-arrow-circle-right"></i></a>
+                                  <a class="btn btn-sm btn-default" timeline-action="jumpNext" title="${lang.jumptoNextVideo}"><i class="fa fa-angle-double-right"></i></a>
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-default btn-success" timeline-action="speed" speed="1" title="${lang.Speed} x1">x1</a>
+                                  <a class="btn btn-sm btn-default" timeline-action="speed" speed="2" title="${lang.Speed} x2">x2</a>
+                                  <a class="btn btn-sm btn-default" timeline-action="speed" speed="5" title="${lang.Speed} x5">x5</a>
+                                  <a class="btn btn-sm btn-default" timeline-action="speed" speed="7" title="${lang.Speed} x7">x7</a>
+                                  <a class="btn btn-sm btn-default" timeline-action="speed" speed="10" title="${lang.Speed} x10">x10</a>
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-default" timeline-action="gridSize" size="md-12">1</a>
+                                  <a class="btn btn-sm btn-default btn-success" timeline-action="gridSize" size="md-6">2</a>
+                                  <a class="btn btn-sm btn-default" timeline-action="gridSize" size="md-4">3</a>
+                              </div>
+                              <div class="btn-group">
+                                  <input class="form-control form-control-sm" id="timeline-video-object-search" placeholder="${lang['Search Object Tags']}">
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-primary" timeline-action="autoGridSizer" title="${lang.autoResizeGrid}"><i class="fa fa-expand"></i></a>
+                                  <a class="btn btn-sm btn-primary" timeline-action="playUntilVideoEnd" title="${lang.playUntilVideoEnd}"><i class="fa fa-step-forward"></i></a>
+                                  <a class="btn btn-sm btn-primary" timeline-action="dontShowDetection" title="${lang['Hide Detection on Stream']}"><i class="fa fa-grav"></i></a>
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-success" timeline-action="downloadAll" title="${lang.Download}"><i class="fa fa-download"></i></a>
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-default" class_toggle="show-non-playing" data-target="#timeline-video-canvas" icon-toggle="fa-eye fa-eye-slash" icon-child="i" title="${lang['Show Only Playing']}"><i class="fa fa-eye-slash"></i></a>
+                                  <a class="btn btn-sm btn-default" timeline-action="refresh" title="${lang.Refresh}"><i class="fa fa-refresh"></i></a>
+                              </div>
+                              <div class="btn-group">
+                                  <a class="btn btn-sm btn-primary" id="timeline-date-selector" title="${lang.Date}"><i class="fa fa-calendar"></i></a>
+                              </div>
+                          </div>
+                          `,
+                      },
+                      {
+                          "fieldType": "div",
+                          "id": "timeline-bottom-strip",
+                      },
+                      {
+                          "fieldType": "div",
+                          "id": "timeline-pre-buffers",
+                          "class": "hidden",
+                      }
+                 ]
+             },
+          }
+        },
   })
 }

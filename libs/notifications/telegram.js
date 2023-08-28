@@ -8,47 +8,89 @@ var fs = require("fs")
 // }
 module.exports = function(s,config,lang,getSnapshot){
     const {
+        getObjectTagNotifyText,
         getEventBasedRecordingUponCompletion,
     } = require('../events/utils.js')(s,config,lang)
+    const {
+        getStreamDirectory
+    } = require('../monitor/utils.js')(s,config,lang)
+    const {
+        ffprobe
+    } = require('../ffmpeg/utils.js')(s,config,lang)
+
     //telegram bot
     if(config.telegramBot === true){
         const TelegramBot = require('node-telegram-bot-api');
         try{
-            const sendMessage = async function(sendBody,files,groupKey){
+            const sendMessage = async function(sendBody,attachments,groupKey){
                 var bot = s.group[groupKey].telegramBot
                 if(!bot){
                     s.userLog({ke:groupKey,mid:'$USER'},{type:lang.NotifyErrorText,msg:lang.DiscordNotEnabledText})
                     return
                 }
-                const chatId = s.group[groupKey].init.telegrambot_channel
-                if(bot && bot.sendMessage){
-                    try{
-                        await bot.sendMessage(chatId, `${sendBody.title}${sendBody.description ? '\n' + sendBody.description : ''}`)
-                        if(files){
-                            files.forEach(async (file) => {
-                                switch(file.type){
-                                    case'video':
-                                        await bot.sendVideo(chatId, file.attachment)
-                                    break;
-                                    case'photo':
-                                        await bot.sendPhoto(chatId, file.attachment)
-                                    break;
-                                }
-                            })
+
+                const sendMessageToChat = async function(chatId, files) {
+                    if(bot && bot.sendMessage){
+                        try{
+                            await bot.sendMessage(chatId, `${sendBody.title}${sendBody.description ? '\n' + sendBody.description : ''}`)
+                            if(files){
+                                await Promise.all(files.map(async (file) => {
+                                    switch(file.type){
+                                        case'video':
+                                            if(file.hasOwnProperty("file_id") === false) {
+                                                const videoFileInfo = (await ffprobe(file.attachment,file.attachment)).result
+                                                const duration = Math.floor(videoFileInfo.streams[0].duration)
+                                                const width = videoFileInfo.streams[0].width
+                                                const height = videoFileInfo.streams[0].height
+
+                                                const options = {
+                                                    thumb: file.thumb,
+                                                    width: width,
+                                                    height: height,
+                                                    duration: duration,
+                                                    supports_streaming: true
+                                                }
+                                                file.file_id = (await bot.sendVideo(chatId, file.attachment, options)).video.file_id
+                                                delete file.attachment
+                                            } else {
+                                                await bot.sendVideo(chatId, file.file_id)
+                                            }
+                                            break;
+                                        case'photo':
+                                            if(file.hasOwnProperty("file_id") === false) {
+                                                file.file_id = (await bot.sendPhoto(chatId, file.attachment)).photo[0].file_id
+                                                delete file.attachment
+                                            } else {
+                                                await bot.sendPhoto(chatId, file.file_id)
+                                            }
+                                            break;
+                                    }
+                                    return file
+                                }))
+                            }
+                            return files
+                        }catch(err){
+                            s.debugLog('Telegram Error',err)
+                            s.userLog({ke:groupKey,mid:'$USER'},{type:lang.NotifyErrorText,msg:err})
                         }
-                    }catch(err){
-                        s.debugLog('Telegram Error',err)
-                        s.userLog({ke:groupKey,mid:'$USER'},{type:lang.NotifyErrorText,msg:err})
+                    }else{
+                        s.userLog({
+                            ke: groupKey,
+                            mid: '$USER'
+                        },{
+                            type: lang.NotifyErrorText,
+                            msg: lang["Check the Recipient ID"]
+                        })
                     }
-                }else{
-                    s.userLog({
-                        ke: groupKey,
-                        mid: '$USER'
-                    },{
-                        type: lang.NotifyErrorText,
-                        msg: lang["Check the Recipient ID"]
-                    })
                 }
+
+                const chatIds = s.group[groupKey].init.telegrambot_channel.split(",")
+                const resolvedFiles = await sendMessageToChat(chatIds[0], attachments)
+
+                chatIds.forEach((chatId, index) => {
+                    if(index < 1) return
+                    sendMessageToChat(chatId, resolvedFiles)
+                });
             }
             const onEventTriggerBeforeFilterForTelegram = function(d,filter){
                 filter.telegram = false
@@ -58,6 +100,7 @@ module.exports = function(s,config,lang,getSnapshot){
                 // d = event object
                 //telegram bot
                 if(s.group[d.ke].telegramBot && (filter.telegram || monitorConfig.details.notify_telegram === '1') && !s.group[d.ke].activeMonitors[d.id].detector_telegrambot){
+                    const notifyText = getObjectTagNotifyText(d)
                     var detector_telegrambot_timeout
                     if(!monitorConfig.details.detector_telegrambot_timeout||monitorConfig.details.detector_telegrambot_timeout===''){
                         detector_telegrambot_timeout = 1000 * 60 * 10;
@@ -71,13 +114,13 @@ module.exports = function(s,config,lang,getSnapshot){
                     await getSnapshot(d,monitorConfig)
                     if(d.screenshotBuffer){
                         sendMessage({
-                            title: lang.Event+' - '+d.screenshotName,
+                            title: notifyText,
                             description: lang.EventText1+' '+d.currentTimestamp,
                         },[
                             {
                                 type: 'photo',
                                 attachment: d.screenshotBuffer,
-                                name: d.screenshotName+'.jpg'
+                                name: notifyText + '.jpg'
                             }
                         ],d.ke)
                     }
@@ -98,13 +141,16 @@ module.exports = function(s,config,lang,getSnapshot){
                             videoName = siftedVideoFileFromRam.filename
                         }
                         if(videoPath){
+                            const thumbFile = getStreamDirectory(d) + 'thumb.jpg';
+                            fs.writeFileSync(thumbFile, d.screenshotBuffer)
                             sendMessage({
-                                title: videoName,
+                                title: notifyText,
                             },[
                                 {
                                     type: 'video',
                                     attachment: videoPath,
-                                    name: videoName
+                                    name: notifyText + '.mp4',
+                                    thumb: thumbFile
                                 }
                             ],d.ke)
                         }

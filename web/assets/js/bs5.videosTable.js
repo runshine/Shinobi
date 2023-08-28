@@ -37,8 +37,11 @@ $(document).ready(function(e){
             imgBlock.find('img').attr('src',href)
         })
     }
-    function openVideosTableView(monitorId,startDate,endDate){
-        drawVideosTableViewElements(monitorId,startDate,endDate)
+    window.openVideosTableView = function(monitorId){
+        drawMonitorListToSelector(monitorsList,null,null,true)
+        monitorsList.val(monitorId)
+        drawVideosTableViewElements()
+        openTab(`videosTableView`,{})
     }
     loadDateRangePicker(dateSelector,{
         onChange: function(start, end, label) {
@@ -151,8 +154,10 @@ $(document).ready(function(e){
                     </div>`,
                     Monitor: loadedMonitor && loadedMonitor.name ? loadedMonitor.name : file.mid,
                     mid: file.mid,
-                    time: `<div><b>${lang.Start}</b> ${formattedTime(file.time, 'DD-MM-YYYY hh:mm:ss AA')}</div>
-                           <div><b>${lang.End}</b> ${formattedTime(file.end, 'DD-MM-YYYY hh:mm:ss AA')}</div>`,
+                    time: `
+                           <div>${timeAgo(file.time)}</div>
+                           <div><small><b>${lang.Start} :</b> ${formattedTime(file.time, 'DD-MM-YYYY hh:mm:ss AA')}</small></div>
+                           <div><small><b>${lang.End} :</b> ${formattedTime(file.end, 'DD-MM-YYYY hh:mm:ss AA')}</small></div>`,
                     objects: file.objects,
                     tags: `
                         ${file.ext ? `<span class="badge badge-${file.ext ==='webm' ? `primary` : 'danger'}">${file.ext}</span>` : ''}
@@ -242,11 +247,7 @@ $(document).ready(function(e){
     .on('click','.open-videosTable',function(e){
         e.preventDefault()
         var monitorId = getRowsMonitorId(this)
-        openTab(`videosTableView`,{},null,null,null,() => {
-            drawMonitorListToSelector(monitorsList,null,null,true)
-            monitorsList.val(monitorId)
-            drawVideosTableViewElements()
-        })
+        openVideosTableView(monitorId)
         return false;
     });
     sideLinkListBox

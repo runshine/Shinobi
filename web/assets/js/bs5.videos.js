@@ -408,7 +408,7 @@ function loadEventsData(videoEvents){
         loadedEventsInMemory[`${anEvent.mid}${anEvent.time}`] = anEvent
     })
 }
-function getVideos(options,callback){
+function getVideos(options,callback,noEvents){
     return new Promise((resolve,reject) => {
         options = options ? options : {}
         var searchQuery = options.searchQuery
@@ -444,7 +444,7 @@ function getVideos(options,callback){
                 })
             })
             $.getJSON(`${getApiPrefix(`timelapse`)}${monitorId ? `/${monitorId}` : ''}?${requestQueries.concat([`noLimit=1`]).join('&')}`,function(timelapseFrames){
-                $.getJSON(`${getApiPrefix(`events`)}${monitorId ? `/${monitorId}` : ''}?${requestQueries.concat([`limit=${eventLimit}`]).join('&')}`,function(eventData){
+                function completeRequest(eventData){
                     var theEvents = eventData.events || eventData;
                     var newVideos = applyDataListToVideos(videos,theEvents)
                     newVideos = applyTimelapseFramesListToVideos(newVideos,timelapseFrames.frames || timelapseFrames,'timelapseFrames',true).map((video) => {
@@ -455,7 +455,14 @@ function getVideos(options,callback){
                     loadVideosData(newVideos)
                     if(callback)callback({videos: newVideos, frames: timelapseFrames});
                     resolve({videos: newVideos, frames: timelapseFrames})
-                })
+                }
+                if(noEvents){
+                    completeRequest([])
+                }else{
+                    $.getJSON(`${getApiPrefix(`events`)}${monitorId ? `/${monitorId}` : ''}?${requestQueries.concat([`limit=${eventLimit}`]).join('&')}`,function(eventData){
+                        completeRequest(eventData)
+                    })
+                }
             })
         })
     })
@@ -620,6 +627,37 @@ function setVideoStatus(video,toStatus){
         }
     })
 }
+function getVideoInfoFromEl(_this){
+    var el = $(_this).parents('[data-mid]')
+    var monitorId = el.attr('data-mid')
+    var videoTime = el.attr('data-time')
+    var video = loadedVideosInMemory[`${monitorId}${videoTime}${undefined}`]
+    return {
+        monitorId,
+        videoTime,
+        video,
+    }
+}
+function getDisplayDimensions(videoElement) {
+  var actualVideoWidth = videoElement.videoWidth;
+  var actualVideoHeight = videoElement.videoHeight;
+  var elementWidth = videoElement.offsetWidth;
+  var elementHeight = videoElement.offsetHeight;
+  var actualVideoAspect = actualVideoWidth / actualVideoHeight;
+  var elementAspect = elementWidth / elementHeight;
+  var displayWidth, displayHeight;
+  if (actualVideoAspect > elementAspect) {
+    displayWidth = elementWidth;
+    displayHeight = elementWidth / actualVideoAspect;
+  } else {
+    displayHeight = elementHeight;
+    displayWidth = elementHeight * actualVideoAspect;
+  }
+  return {
+    videoWidth: displayWidth,
+    videoHeight: displayHeight,
+  };
+}
 onWebSocketEvent(function(d){
     switch(d.f){
         case'video_edit':case'video_archive':
@@ -646,10 +684,12 @@ $(document).ready(function(){
     $('body')
     .on('click','.open-video',function(e){
         e.preventDefault()
-        var el = $(this).parents('[data-mid]')
-        var monitorId = el.attr('data-mid')
-        var videoTime = el.attr('data-time')
-        var video = loadedVideosInMemory[`${monitorId}${videoTime}${undefined}`]
+        var _this = this;
+        var {
+            monitorId,
+            videoTime,
+            video,
+        } = getVideoInfoFromEl(_this)
         createVideoPlayerTab(video)
         setVideoStatus(video)
         return false;

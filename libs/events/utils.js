@@ -448,8 +448,8 @@ module.exports = (s,config,lang) => {
             createEventBasedRecording(d,moment(eventTime).subtract(secondBefore,'seconds').format('YYYY-MM-DDTHH-mm-ss'))
         }
         d.currentTime = eventTime
-        d.currentTimestamp = s.timeObject(d.currentTime).format()
-        d.screenshotName =  eventDetails.reason + '_'+(monitorConfig.name.replace(/[^\w\s]/gi,''))+'_'+d.id+'_'+d.ke+'_'+s.formattedTime()
+        d.currentTimestamp = s.timeObject(eventTime).format()
+        d.screenshotName =  eventDetails.reason + '_'+(monitorConfig.name.replace(/[^\w\s]/gi,''))+'_'+d.id+'_'+d.ke+'_'+s.formattedTime(eventTime)
         d.screenshotBuffer = null
 
         if(filter.webhook && monitorDetails.detector_webhook === '1' && !s.group[d.ke].activeMonitors[d.id].detector_webhook){
@@ -836,10 +836,11 @@ module.exports = (s,config,lang) => {
     function getObjectTagsFromMatrices(d){
         if(d.details.reason === 'motion'){
             return [getTagWithIcon(lang.Motion)]
-        }else{
+        }else if(d.details.matrices){
             const matrices = d.details.matrices
             return [...new Set(matrices.map(matrix => getTagWithIcon(matrix.tag)))];
         }
+        return [getTagWithIcon(d.details.reason)]
     }
     function getObjectTagNotifyText(d){
         const monitorId = d.mid || d.id

@@ -25,6 +25,8 @@ module.exports = function(s,config){
     createExtension(`beforeAccountSave`)
     createExtension(`onTwoFactorAuthCodeNotification`)
     createExtension(`onStalePurgeLock`)
+    createExtension(`onVideoAccess`)
+    createExtension(`onLogout`)
     ////// EVENTS //////
     createExtension(`onEventTrigger`)
     createExtension(`onEventTriggerBeforeFilter`)
@@ -62,6 +64,7 @@ module.exports = function(s,config){
     createExtension(`onEventBasedRecordingComplete`)
     createExtension(`onEventBasedRecordingStart`)
     createExtension(`onBeforeInsertCompletedVideo`)
+    createExtension(`onCloudVideoUploaded`)
     /////// TIMELAPSE ////////
     createExtension(`onInsertTimelapseFrame`)
 }

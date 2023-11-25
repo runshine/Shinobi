@@ -71,7 +71,7 @@ function generateDefaultMonitorSettings(){
            "stream_acodec": "no",
            "hls_time": "2",
            "hls_list_size": "3",
-           "preset_stream": "ultrafast",
+           "preset_stream": "slow",
            "signal_check": "10",
            "signal_check_log": "0",
            "stream_quality": "15",

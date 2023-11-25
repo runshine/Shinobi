@@ -237,7 +237,7 @@ module.exports = function(s,config,lang,app,io){
                 const finalMp4OutputLocation = options.output
                 const onPercentChange = options.onPercentChange
                 const numberOfFrames = framesAccepted.length
-                const commandString = `-y -threads 1 -re -f concat -safe 0 -r ${framesPerSecond} -i "${concatListFile}" -q:v 1 -c:v libx264 -preset ultrafast -r ${framesPerSecond} "${finalMp4OutputLocation}"`
+                const commandString = `-y -threads 1 -re -f concat -safe 0 -r ${framesPerSecond} -i "${concatListFile}" -q:v 1 -c:v libx264 -preset slow -r ${framesPerSecond} "${finalMp4OutputLocation}"`
                 s.debugLog("ffmpeg",commandString)
                 const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
                 videoBuildProcess.stdout.on('data',function(data){

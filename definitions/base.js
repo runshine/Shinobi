@@ -989,7 +989,7 @@ module.exports = function(s,config,lang){
                       "name": "detail=preset_stream",
                       "field": "HLS Preset",
                       "description": lang["fieldTextPresetStream"],
-                      "example": "ultrafast",
+                      "example": "slow",
                       "form-group-class": "h_st_input h_st_hls h_st_flv h_st_mp4",
                    },
                    {
@@ -1769,7 +1769,7 @@ module.exports = function(s,config,lang){
                               "name": "detail-substream-output=preset_stream",
                               "field": lang["HLS Preset"],
                               "description": lang["fieldTextDetailSubstreamOutputPresetStream"],
-                              "example": "ultrafast",
+                              "example": "slow",
                               "form-group-class": "h_st_channel_SUBSTREAM_FIELDS_input h_st_channel_SUBSTREAM_FIELDS_hls",
                            },
                            {
@@ -2112,7 +2112,7 @@ module.exports = function(s,config,lang){
                       "field": lang.Preset,
                       "description": lang["fieldTextPresetRecord"],
                       "default": "",
-                      "example": "ultrafast",
+                      "example": "slow",
                       "form-group-class": "h_vc_input h_vc_libvpx h_vc_libvpx-vp9 h_vc_libx264 h_vc_libx265 h_vc_hevc_nvenc h_vc_h264_nvenc h_vc_h264_vaapi h_vc_hevc_vaapi h_vc_h264_qsv h_vc_hevc_qsv h_vc_mpeg2_qsv h_vc_default h_vc_none",
                       "possible": ""
                    },
@@ -7384,7 +7384,7 @@ module.exports = function(s,config,lang){
                         "name": "channel-detail=preset_stream",
                         "field": lang["HLS Preset"],
                         "description": lang["fieldTextChannelPresetStream"],
-                        "example": "ultrafast",
+                        "example": "slow",
                         "form-group-class": "h_st_channel_$[TEMP_ID]_input h_st_channel_$[TEMP_ID]_hls",
                      },
                      {

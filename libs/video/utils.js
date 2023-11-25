@@ -255,7 +255,7 @@ module.exports = (s,config,lang) => {
         return new Promise((resolve,reject) => {
             const concatListFile = options.listFile
             const finalMp4OutputLocation = options.output
-            const commandString = `-y -threads 1 -f concat -safe 0 -i "${concatListFile}" -c:v copy -an -preset ultrafast "${finalMp4OutputLocation}"`
+            const commandString = `-y -threads 1 -f concat -safe 0 -i "${concatListFile}" -c:v copy -an -preset slow "${finalMp4OutputLocation}"`
             s.debugLog("stitchMp4Files",commandString)
             const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
             videoBuildProcess.stdout.on('data',function(data){
@@ -284,7 +284,7 @@ module.exports = (s,config,lang) => {
                 const videoFolder = s.getVideoDirectory(videoRow)
                 const inputFilePath = `${videoFolder}${filename}`
                 const outputFilePath = `${videoFolder}${tempFilename}`
-                const commandString = `-y -threads 1 -re -i "${inputFilePath}" -c:v copy -c:a copy -preset ultrafast "${outputFilePath}"`
+                const commandString = `-y -threads 1 -re -i "${inputFilePath}" -c:v copy -c:a copy -preset slow "${outputFilePath}"`
                 fixingAlready[fixingId] = true
                 const videoBuildProcess = spawn(config.ffmpegDir,splitForFFMPEG(commandString))
                 videoBuildProcess.stdout.on('data',function(data){

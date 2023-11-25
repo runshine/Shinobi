@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=node:18-bullseye-slim
+ARG BASE_IMAGE=node:lts-slim
 FROM ${BASE_IMAGE}
     
 ARG DEBIAN_FRONTEND=noninteractive \
@@ -54,6 +54,10 @@ RUN apt-get install -y \
 RUN sh /home/Shinobi/Docker/install_ffmpeg.sh
 RUN sh /home/Shinobi/Docker/install_mariadb.sh
 RUN sh /home/Shinobi/Docker/install_nodejs.sh
+
+RUN cd /opt && wget https://github.com/AkashiSN/ffmpeg-docker/releases/download/v2.3.1/ffmpeg-6.0-linux-amd64.tar.xz && xz -d ffmpeg-6.0-linux-amd64.tar.xz && tar -xvf ffmpeg-6.0-linux-amd64.tar && mv  ffmpeg-6.0-linux-amd64 ffmpeg
+
+RUN sed -i '$i\/opt/ffmpeg/lib' /etc/ld.so.conf.d/x86_64-linux-gnu.conf && ldconfig && rm /usr/bin/ffmpeg && ln -s /opt/ffmpeg/bin/ffmpeg /usr/bin/ffmpeg
 
 RUN chmod 777 /home/Shinobi
 RUN chmod -R 777 /home/Shinobi/plugins

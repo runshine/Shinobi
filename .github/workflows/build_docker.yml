@@ -22,7 +22,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push smartdns
+      - name: Build and push shinobi 
         uses: docker/build-push-action@v5
         with:
           context: .

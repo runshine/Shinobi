@@ -16,6 +16,7 @@ apt-get install -y \
         libx264-dev \
         libx265-dev \
         x264 \
-        ffmpeg 
+        ffmpeg \
+	intel-media-va-driver-non-free
 
 ffmpeg -version

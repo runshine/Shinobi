@@ -1,4 +1,5 @@
-ARG BASE_IMAGE=node:lts-slim
+#ARG BASE_IMAGE=node:lts-slim
+ARG BASE_IMAGE=sitespeedio/node:ubuntu-22-04-nodejs-20.10.0
 FROM ${BASE_IMAGE}
     
 ARG DEBIAN_FRONTEND=noninteractive \
@@ -56,9 +57,9 @@ RUN sh /home/Shinobi/Docker/install_ffmpeg.sh
 RUN sh /home/Shinobi/Docker/install_mariadb.sh
 RUN sh /home/Shinobi/Docker/install_nodejs.sh
 
-RUN cd /opt && wget https://github.com/AkashiSN/ffmpeg-docker/releases/download/v2.3.1/$FFMPEG_VERSION.tar.xz && xz -d $FFMPEG_VERSION.tar.xz && tar -xvf $FFMPEG_VERSION.tar && mv $FFMPEG_VERSION ffmpeg && rm $FFMPEG_VERSION.tar
+#RUN cd /opt && wget https://github.com/AkashiSN/ffmpeg-docker/releases/download/v2.3.1/$FFMPEG_VERSION.tar.xz && xz -d $FFMPEG_VERSION.tar.xz && tar -xvf $FFMPEG_VERSION.tar && mv $FFMPEG_VERSION ffmpeg && rm $FFMPEG_VERSION.tar
 
-RUN sed -i '$i\/opt/ffmpeg/lib' /etc/ld.so.conf.d/x86_64-linux-gnu.conf && ldconfig && rm /usr/bin/ffmpeg && ln -s /opt/ffmpeg/bin/ffmpeg /usr/bin/ffmpeg
+#RUN sed -i '$i\/opt/ffmpeg/lib' /etc/ld.so.conf.d/x86_64-linux-gnu.conf && ldconfig && rm /usr/bin/ffmpeg && ln -s /opt/ffmpeg/bin/ffmpeg /usr/bin/ffmpeg
 
 RUN chmod 777 /home/Shinobi
 RUN chmod -R 777 /home/Shinobi/plugins
